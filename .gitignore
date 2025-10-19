@@ -1,0 +1,100 @@
+# ==========================
+# === .NET / ASP.NET Core ===
+# ==========================
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.vs/
+*.dbmdl
+*.dbproj.schemaview
+*.dbschema
+*.pdb
+*.cache
+*.dbmdl
+*.bak
+*.Backup
+*.tmp
+*.svclog
+*.ide/
+*.userprefs
+*.rsuser
+TestResults/
+AppPackages/
+BundleArtifacts/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+_ReSharper*/
+*.ncrunchsolution
+*.ncrunchproject
+*.ncrunchresults
+*.coverage
+*.coveragexml
+*.log
+
+# Rider
+.idea/
+
+# ==========================
+# === Node / Angular ===
+# ==========================
+# Node dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+.pnp.*
+.pnpm-debug.log
+
+# Angular build
+dist/
+out-tsc/
+tmp/
+temp/
+
+# Angular CLI cache
+.angular/
+.angular/cache/
+.angular/compiler-cache/
+
+# IDEs
+.vscode/
+*.code-workspace
+
+# Environment files
+*.env
+*.local.env
+
+# ==========================
+# === Docker ===
+# ==========================
+# Docker build artifacts
+**/Dockerfile.*
+**/docker-compose*.yaml
+!.dockerignore
+**/docker-compose.override.yml
+
+# ==========================
+# === OS-specific ===
+# ==========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~

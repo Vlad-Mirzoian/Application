@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16
+    container_name: event_db
+    restart: always
+    environment:
+      POSTGRES_DB: eventdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    container_name: event_api
+    build:
+      context: ./backend/EventApi
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__Default=Host=db;Database=eventdb;Username=postgres;Password=${DB_PASS}
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5250:80"
+
+  frontend:
+    container_name: event_frontend
+    build:
+      context: ./frontend/event-manager-frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "4200:80"
+
+volumes:
+  postgres-data:
