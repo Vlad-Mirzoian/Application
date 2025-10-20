@@ -38,6 +38,7 @@ _ReSharper*/
 *.coverage
 *.coveragexml
 *.log
+*.http
 
 # Rider
 .idea/
