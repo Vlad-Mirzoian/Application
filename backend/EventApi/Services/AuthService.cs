@@ -1,4 +1,4 @@
-using EventApi.Dtos;
+using EventApi.Dtos.AuthDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using EventApi.Repositories;
@@ -29,13 +29,11 @@ namespace EventApi.Services
         {
             if (await _authRepository.ExistsByEmailAsync(dto.Email))
                 throw new EmailAlreadyExistsException("Email already exists");
-
             var user = new User
             {
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
-
             await _authRepository.AddAsync(user);
         }
 
@@ -44,7 +42,6 @@ namespace EventApi.Services
             var user = await _authRepository.GetByEmailAsync(dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new InvalidCredentialsException("Invalid credentials");
-
             return new AuthResponseDto { Token = GenerateJwtToken(user) };
         }
 

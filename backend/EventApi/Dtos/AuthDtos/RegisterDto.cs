@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace EventApi.Dtos
+namespace EventApi.Dtos.AuthDtos
 {
-    public class LoginDto
+    public class RegisterDto
     {
         [Required, EmailAddress]
         public required string Email { get; set; }

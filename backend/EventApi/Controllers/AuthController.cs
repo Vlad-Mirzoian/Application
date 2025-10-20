@@ -1,4 +1,4 @@
-using EventApi.Dtos;
+using EventApi.Dtos.AuthDtos;
 using EventApi.Services;
 using Microsoft.AspNetCore.Mvc;
 

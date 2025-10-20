@@ -1,4 +1,4 @@
-namespace EventApi.Dtos
+namespace EventApi.Dtos.AuthDtos
 {
     public class AuthResponseDto
     {

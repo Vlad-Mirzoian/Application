@@ -1,4 +1,4 @@
-using EventApi.Dtos;
+using EventApi.Dtos.AuthDtos;
 
 namespace EventApi.Services
 {

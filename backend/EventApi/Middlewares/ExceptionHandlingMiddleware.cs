@@ -30,6 +30,8 @@ namespace EventApi.Middlewares
             {
                 InvalidCredentialsException => HttpStatusCode.Unauthorized,
                 EmailAlreadyExistsException => HttpStatusCode.Conflict,
+                EventNotFoundException => HttpStatusCode.NotFound,
+                ForbiddenAccessException => HttpStatusCode.Forbidden,
                 _ => HttpStatusCode.BadRequest
             };
 
@@ -48,5 +50,14 @@ namespace EventApi.Middlewares
     public class EmailAlreadyExistsException : Exception
     {
         public EmailAlreadyExistsException(string message) : base(message) { }
+    }
+    public class EventNotFoundException : Exception
+    {
+        public EventNotFoundException(string message) : base(message) { }
+    }
+
+    public class ForbiddenAccessException : Exception
+    {
+        public ForbiddenAccessException(string message) : base(message) { }
     }
 }

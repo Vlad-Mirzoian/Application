@@ -1,12 +1,14 @@
+using DotNetEnv;
 using EventApi.Data;
 using EventApi.Middlewares;
+using EventApi.Repositories;
 using EventApi.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DotNetEnv;
-using EventApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,12 @@ Env.Load("../../.env");
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var connectionStringTemplate = builder.Configuration.GetConnectionString("Default");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASS");
@@ -46,13 +53,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IEventService, EventService>();
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.MapControllers();
 
 app.Run();
