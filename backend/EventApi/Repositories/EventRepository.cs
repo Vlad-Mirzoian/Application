@@ -1,4 +1,5 @@
 using EventApi.Data;
+using EventApi.Dtos.EventDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,20 @@ namespace EventApi.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId)
+        {
+            return await _context.Events
+                .Where(e => e.CreatorId == userId || e.Participants.Any(p => p.UserId == userId))
+                .Select(e => new CalendarEventDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Start = e.StartDateTime,
+                    IsCreator = e.CreatorId == userId
+                })
+                .ToListAsync();
         }
     }
 }

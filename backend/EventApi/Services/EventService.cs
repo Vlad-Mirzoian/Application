@@ -155,5 +155,10 @@ namespace EventApi.Services
 
             await _eventRepository.RemoveParticipantAsync(id, userId);
         }
+
+        public async Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId)
+        {
+            return await _eventRepository.GetUserEventsAsync(userId);
+        }
     }
 }

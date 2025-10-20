@@ -8,11 +8,11 @@ namespace EventApi.Controllers
 {
     [Route("api/events")]
     [ApiController]
-    public class EventsController : ControllerBase
+    public class EventController : ControllerBase
     {
         private readonly IEventService _eventService;
 
-        public EventsController(IEventService eventService)
+        public EventController(IEventService eventService)
         {
             _eventService = eventService;
         }
@@ -63,18 +63,18 @@ namespace EventApi.Controllers
         [HttpPost("{id}/join")]
         public async Task<ActionResult> JoinEvent(Guid id)
         {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                await _eventService.JoinEventAsync(id, userId);
-                return Ok();
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _eventService.JoinEventAsync(id, userId);
+            return Ok();
         }
 
         [Authorize]
         [HttpPost("{id}/leave")]
         public async Task<ActionResult> LeaveEvent(Guid id)
         {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                await _eventService.LeaveEventAsync(id, userId);
-                return Ok();
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _eventService.LeaveEventAsync(id, userId);
+            return Ok();
         }
     }
 }

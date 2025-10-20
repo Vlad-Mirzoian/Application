@@ -11,5 +11,6 @@ namespace EventApi.Services
         Task DeleteEventAsync(Guid id, Guid userId);
         Task JoinEventAsync(Guid id, Guid userId);
         Task LeaveEventAsync(Guid id, Guid userId);
+        Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId);
     }
 }

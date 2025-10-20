@@ -1,3 +1,4 @@
+using EventApi.Dtos.EventDtos;
 using EventApi.Models;
 
 namespace EventApi.Repositories
@@ -11,6 +12,7 @@ namespace EventApi.Repositories
         Task DeleteAsync(Event @event);
         Task AddParticipantAsync(Guid id, Guid userId);
         Task RemoveParticipantAsync(Guid id, Guid userId);
+        Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId);
 
     }
 }
