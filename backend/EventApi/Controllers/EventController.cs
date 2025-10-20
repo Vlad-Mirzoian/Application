@@ -58,5 +58,23 @@ namespace EventApi.Controllers
             await _eventService.DeleteEventAsync(id, userId);
             return NoContent();
         }
+
+        [Authorize]
+        [HttpPost("{id}/join")]
+        public async Task<ActionResult> JoinEvent(Guid id)
+        {
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _eventService.JoinEventAsync(id, userId);
+                return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("{id}/leave")]
+        public async Task<ActionResult> LeaveEvent(Guid id)
+        {
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _eventService.LeaveEventAsync(id, userId);
+                return Ok();
+        }
     }
 }

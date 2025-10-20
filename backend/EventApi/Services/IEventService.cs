@@ -9,5 +9,7 @@ namespace EventApi.Services
         Task<EventResponseDto> CreateEventAsync(EventCreateDto dto, Guid userId);
         Task<EventResponseDto> UpdateEventAsync(Guid id, EventUpdateDto dto, Guid userId);
         Task DeleteEventAsync(Guid id, Guid userId);
+        Task JoinEventAsync(Guid id, Guid userId);
+        Task LeaveEventAsync(Guid id, Guid userId);
     }
 }

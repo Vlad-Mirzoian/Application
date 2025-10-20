@@ -1,4 +1,5 @@
 using EventApi.Data;
+using EventApi.Middlewares;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,13 @@ namespace EventApi.Repositories
             await _context.Events
                 .Where(e => e.Visibility)
                 .Include(e => e.Creator)
+                .Include(e => e.Participants)
                 .ToListAsync();
 
         public async Task<Event?> GetByIdAsync(Guid id) =>
             await _context.Events
                 .Include(e => e.Creator)
+                .Include(e => e.Participants)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
         public async Task AddAsync(Event @event)
@@ -36,6 +39,60 @@ namespace EventApi.Repositories
         {
             _context.Events.Remove(@event);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task AddParticipantAsync(Guid eventId, Guid userId)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                var @event = await _context.Events
+                    .Include(e => e.Participants)
+                    .SingleOrDefaultAsync(e => e.Id == eventId);
+
+                if (@event == null)
+                    throw new EventNotFoundException("Event not found");
+
+                if (@event.Capacity.HasValue && @event.Participants.Count >= @event.Capacity.Value)
+                    throw new EventFullException("Event is full");
+
+                var participant = new Participant
+                {
+                    EventId = eventId,
+                    UserId = userId
+                };
+
+                _context.Participants.Add(participant);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task RemoveParticipantAsync(Guid eventId, Guid userId)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                var participant = await _context.Participants
+                    .SingleOrDefaultAsync(p => p.EventId == eventId && p.UserId == userId);
+
+                if (participant == null)
+                    throw new NotParticipantException("User is not a participant");
+
+                _context.Participants.Remove(participant);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

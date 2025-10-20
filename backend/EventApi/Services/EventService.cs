@@ -2,6 +2,7 @@ using EventApi.Dtos.EventDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using EventApi.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventApi.Services
 {
@@ -29,7 +30,8 @@ namespace EventApi.Services
                 Capacity = e.Capacity,
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
-                CreatorEmail = e.Creator.Email
+                CreatorEmail = e.Creator.Email,
+                ParticipantCount = e.Participants?.Count ?? 0
             }).ToList();
         }
 
@@ -49,7 +51,8 @@ namespace EventApi.Services
                 Capacity = e.Capacity,
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
-                CreatorEmail = e.Creator.Email
+                CreatorEmail = e.Creator.Email,
+                ParticipantCount = e.Participants.Count
             };
         }
 
@@ -80,7 +83,8 @@ namespace EventApi.Services
                 Capacity = e.Capacity,
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
-                CreatorEmail = user!.Email
+                CreatorEmail = user!.Email,
+                ParticipantCount = 0
             };
         }
 
@@ -111,7 +115,8 @@ namespace EventApi.Services
                 Capacity = e.Capacity,
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
-                CreatorEmail = user!.Email
+                CreatorEmail = user!.Email,
+                ParticipantCount = e.Participants?.Count ?? 0
             };
         }
 
@@ -121,6 +126,34 @@ namespace EventApi.Services
             if (e == null) throw new EventNotFoundException("Event not found");
             if (e.CreatorId != userId) throw new ForbiddenAccessException("Only creator can delete event");
             await _eventRepository.DeleteAsync(e);
+        }
+
+        public async Task JoinEventAsync(Guid id, Guid userId)
+        {
+            var @event = await _eventRepository.GetByIdAsync(id)
+                ?? throw new EventNotFoundException("Event not found");
+
+            if (!@event.Visibility && @event.CreatorId != userId)
+                throw new ForbiddenAccessException("Private event access denied");
+
+            if (@event.CreatorId == userId)
+                throw new ForbiddenAccessException("Creator cannot join own event");
+
+            if (@event.Participants.Any(p => p.UserId == userId))
+                throw new AlreadyJoinedException("User already joined");
+
+            await _eventRepository.AddParticipantAsync(id, userId);
+        }
+
+        public async Task LeaveEventAsync(Guid id, Guid userId)
+        {
+            var @event = await _eventRepository.GetByIdAsync(id)
+                ?? throw new EventNotFoundException("Event not found");
+
+            if (!@event.Participants.Any(p => p.UserId == userId))
+                throw new NotParticipantException("User is not a participant");
+
+            await _eventRepository.RemoveParticipantAsync(id, userId);
         }
     }
 }

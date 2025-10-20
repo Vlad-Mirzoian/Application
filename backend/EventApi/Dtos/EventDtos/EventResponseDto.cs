@@ -11,5 +11,6 @@ namespace EventApi.Dtos.EventDtos
         public bool Visibility { get; set; }
         public Guid CreatorId { get; set; }
         public string CreatorEmail { get; set; } = string.Empty;
+        public int ParticipantCount { get; set; }
     }
 }

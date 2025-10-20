@@ -9,6 +9,8 @@ namespace EventApi.Repositories
         Task AddAsync(Event @event);
         Task UpdateAsync(Event @event);
         Task DeleteAsync(Event @event);
+        Task AddParticipantAsync(Guid id, Guid userId);
+        Task RemoveParticipantAsync(Guid id, Guid userId);
 
     }
 }

@@ -32,6 +32,9 @@ namespace EventApi.Middlewares
                 EmailAlreadyExistsException => HttpStatusCode.Conflict,
                 EventNotFoundException => HttpStatusCode.NotFound,
                 ForbiddenAccessException => HttpStatusCode.Forbidden,
+                AlreadyJoinedException => HttpStatusCode.Conflict,
+                EventFullException => HttpStatusCode.Conflict,
+                NotParticipantException => HttpStatusCode.Forbidden,
                 _ => HttpStatusCode.BadRequest
             };
 
@@ -60,4 +63,20 @@ namespace EventApi.Middlewares
     {
         public ForbiddenAccessException(string message) : base(message) { }
     }
+
+    public class AlreadyJoinedException : Exception
+    {
+        public AlreadyJoinedException(string message) : base(message) { }
+    }
+
+    public class EventFullException : Exception
+    {
+        public EventFullException(string message) : base(message) { }
+    }
+
+    public class NotParticipantException : Exception
+    {
+        public NotParticipantException(string message) : base(message) { }
+    }
+
 }
