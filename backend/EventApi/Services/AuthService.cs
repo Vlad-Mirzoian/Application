@@ -25,7 +25,7 @@ namespace EventApi.Services
             _jwtAudience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
         }
 
-        public async Task RegisterAsync(RegisterDto dto)
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterDto dto)
         {
             if (await _authRepository.ExistsByEmailAsync(dto.Email))
                 throw new EmailAlreadyExistsException("Email already exists");
@@ -35,14 +35,15 @@ namespace EventApi.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
             await _authRepository.AddAsync(user);
+            return new RegisterResponseDto { Message = "Sign in completed! You can now log in." };
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+        public async Task<LoginResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _authRepository.GetByEmailAsync(dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new InvalidCredentialsException("Invalid credentials");
-            return new AuthResponseDto { Token = GenerateJwtToken(user) };
+            return new LoginResponseDto { Token = GenerateJwtToken(user) };
         }
 
         private string GenerateJwtToken(User user)

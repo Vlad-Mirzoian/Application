@@ -4,7 +4,7 @@ namespace EventApi.Services
 {
     public interface IAuthService
     {
-        Task RegisterAsync(RegisterDto dto);
-        Task<AuthResponseDto> LoginAsync(LoginDto dto);
+        Task<RegisterResponseDto> RegisterAsync(RegisterDto dto);
+        Task<LoginResponseDto> LoginAsync(LoginDto dto);
     }
 }

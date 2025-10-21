@@ -16,14 +16,14 @@ namespace EventApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterDto dto)
         {
-            await _authService.RegisterAsync(dto);
-            return Ok();
+            var response = await _authService.RegisterAsync(dto);
+            return Ok(response);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
         {
             var response = await _authService.LoginAsync(dto);
             return Ok(response);

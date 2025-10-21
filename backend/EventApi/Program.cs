@@ -16,6 +16,13 @@ Env.Load("../../.env");
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.WithOrigins("http://localhost:4200") 
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
@@ -60,6 +67,8 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

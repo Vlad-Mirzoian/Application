@@ -1,6 +1,6 @@
 namespace EventApi.Dtos.AuthDtos
 {
-    public class AuthResponseDto
+    public class LoginResponseDto
     {
         public string Token { get; set; } = string.Empty;
     }
