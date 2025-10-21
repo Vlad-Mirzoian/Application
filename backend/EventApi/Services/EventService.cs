@@ -17,9 +17,15 @@ namespace EventApi.Services
             _authRepository = authRepository;
         }
 
-        public async Task<List<EventResponseDto>> GetPublicEventsAsync()
+        public async Task<List<EventResponseDto>> GetPublicEventsAsync(Guid? userId = null)
         {
             var events = await _eventRepository.GetPublicEventsAsync();
+
+            if (userId.HasValue)
+            {
+                events = events.Where(e => e.CreatorId != userId.Value).ToList();
+            }
+
             return events.Select(e => new EventResponseDto
             {
                 Id = e.Id,

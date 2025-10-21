@@ -11,7 +11,6 @@ import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-login',
@@ -23,11 +22,6 @@ import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
     MatButtonModule,
     MatSnackBarModule,
     RouterModule,
-  ],
-  providers: [
-    AuthService,
-    { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
-    JwtHelperService,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],

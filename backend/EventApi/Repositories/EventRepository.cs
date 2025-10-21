@@ -13,7 +13,7 @@ namespace EventApi.Repositories
 
         public async Task<List<Event>> GetPublicEventsAsync() =>
             await _context.Events
-                .Where(e => e.Visibility)
+                .Where(e => e.Visibility && e.StartDateTime >= DateTime.UtcNow)
                 .Include(e => e.Creator)
                 .Include(e => e.Participants)
                 .ToListAsync();

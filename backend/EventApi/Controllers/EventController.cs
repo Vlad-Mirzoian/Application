@@ -20,9 +20,14 @@ namespace EventApi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<EventResponseDto>>> GetPublicEvents()
         {
-            var events = await _eventService.GetPublicEventsAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine($"[DEBUG] UserId from token: {userIdClaim}");
+            var events = await _eventService.GetPublicEventsAsync(
+                userIdClaim != null ? Guid.Parse(userIdClaim) : null
+            );
             return Ok(events);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EventResponseDto>> GetEventById(Guid id)

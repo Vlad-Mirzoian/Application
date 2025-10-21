@@ -1,0 +1,87 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Discover Events</h1>
+    <p class="text-gray-600">
+      Find and join exciting events happening around you.
+    </p>
+  </div>
+  <div
+    *ngIf="events$ | async as events; else loading"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+  >
+    <div
+      *ngFor="let event of events"
+      class="bg-white border border-gray-300 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+    >
+      <a
+        [routerLink]="['/events', event.id]"
+        class="text-xl font-semibold text-blue-600 hover:underline mb-3 block"
+        >{{ event.title }}</a
+      >
+      <p class="text-gray-600 mb-3 truncate" title="{{ event.description }}">
+        {{
+          event.description
+            ? event.description.length > 100
+              ? (event.description | slice : 0 : 100) + "..."
+              : event.description
+            : "No description"
+        }}
+      </p>
+      <div class="space-y-2">
+        <p class="text-gray-600 flex items-center">
+          <mat-icon class="mr-2 text-gray-500">event</mat-icon
+          >{{ event.startDateTime | date : "mediumDate" }}
+        </p>
+        <p class="text-gray-600 flex items-center">
+          <mat-icon class="mr-2 text-gray-500">access_time</mat-icon
+          >{{ event.startDateTime | date : "shortTime" }}
+        </p>
+        <p class="text-gray-600 flex items-center">
+          <mat-icon class="mr-2 text-gray-500">location_on</mat-icon
+          >{{ event.location }}
+        </p>
+        <p class="text-gray-600 flex items-center">
+          <mat-icon class="mr-2 text-gray-500">group</mat-icon>Participants:
+          {{ event.participantCount }}
+          {{ event.capacity ? "/ " + event.capacity : "" }}
+        </p>
+      </div>
+      <div
+        *ngIf="
+          isAuthenticated && userEvents$ && (userEvents$ | async) as userEvents
+        "
+        class="mt-4"
+      >
+        <button
+          *ngIf="isUserParticipant(event.id, userEvents)"
+          (click)="leaveEvent(event.id)"
+          class="w-full bg-red-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          Leave
+        </button>
+        <span
+          *ngIf="
+            !isUserParticipant(event.id, userEvents) &&
+            event.participantCount >= (event.capacity ?? Number.MAX_VALUE)
+          "
+          class="block text-center bg-gray-300 text-gray-700 font-medium py-2 rounded-md shadow-sm select-none"
+        >
+          Full
+        </span>
+        <button
+          *ngIf="
+            !isUserParticipant(event.id, userEvents) &&
+            event.participantCount < (event.capacity ?? Number.MAX_VALUE)
+          "
+          (click)="joinEvent(event.id)"
+          class="w-full bg-green-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Join
+        </button>
+      </div>
+    </div>
+  </div>
+  <ng-template #loading>
+    <div class="text-center text-gray-600">Loading events...</div>
+  </ng-template>
+</div>

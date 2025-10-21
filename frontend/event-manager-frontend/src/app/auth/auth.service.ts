@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from '../environments/environment';
+import { SafeJwtHelperService } from '../shared/safe-jwt-helper.service';
 
 export interface AuthResponse {
   token: string;
@@ -20,7 +21,7 @@ export interface AuthRequest {
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {}
+  constructor(private http: HttpClient, private jwtHelper: SafeJwtHelperService) {}
 
   register(data: AuthRequest): Observable<AuthResponse> {
     return this.http
@@ -35,15 +36,18 @@ export class AuthService {
   }
 
   logout(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem('token');
   }
 
   isAuthenticated(): boolean {
+    if (typeof window === 'undefined') return false;
     const token = localStorage.getItem('token');
     return !!token && !this.jwtHelper.isTokenExpired(token);
   }
 
   getUserId(): string | null {
+    if (typeof window === 'undefined') return null;
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = this.jwtHelper.decodeToken(token);
@@ -55,6 +59,7 @@ export class AuthService {
   }
 
   private setToken(token: string): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('token', token);
   }
 }
