@@ -23,6 +23,24 @@ export interface CalendarEventDto {
   isCreator: boolean;
 }
 
+export interface EventCreateDto {
+  title: string;
+  description?: string;
+  startDateTime: string;
+  location: string;
+  capacity?: number;
+  visibility: boolean;
+}
+
+export interface EventUpdateDto {
+  title?: string;
+  description?: string;
+  startDateTime?: string;
+  location?: string;
+  capacity?: number;
+  visibility?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -49,5 +67,17 @@ export class EventService {
 
   getUserEvents(): Observable<CalendarEventDto[]> {
     return this.http.get<CalendarEventDto[]>(`${this.apiUrl}/users/me/events`);
+  }
+
+  createEvent(dto: EventCreateDto): Observable<EventDto> {
+    return this.http.post<EventDto>(`${this.apiUrl}/events`, dto);
+  }
+
+  updateEvent(id: string, dto: EventUpdateDto): Observable<EventDto> {
+    return this.http.patch<EventDto>(`${this.apiUrl}/events/${id}`, dto);
+  }
+
+  deleteEvent(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/events/${id}`);
   }
 }

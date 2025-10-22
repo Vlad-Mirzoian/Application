@@ -6,75 +6,92 @@
       {{ message }}
     </p>
   </div>
-  <div
-    *ngIf="event$ | async as event; else loading"
-    class="bg-white border border-gray-300 rounded-lg shadow-md p-8 max-w-2xl mx-auto"
-  >
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ event.title }}</h2>
-    <div class="space-y-4">
-      <p class="text-gray-600 flex items-center gap-2">
-        <mat-icon class="mr-2 text-gray-500">event</mat-icon
-        ><strong>Date:</strong> {{ event.startDateTime | date : "fullDate" }}
-      </p>
-      <p class="text-gray-600 flex items-center gap-2">
-        <mat-icon class="mr-2 text-gray-500">access_time</mat-icon
-        ><strong>Time:</strong> {{ event.startDateTime | date : "shortTime" }}
-      </p>
-      <p class="text-gray-600 flex items-center gap-2">
-        <mat-icon class="mr-2 text-gray-500">location_on</mat-icon
-        ><strong>Location:</strong> {{ event.location }}
-      </p>
-      <p class="text-gray-600 flex items-center gap-2">
-        <mat-icon class="mr-2 text-gray-500">group</mat-icon
-        ><strong>Participants:</strong> {{ event.participantCount }}
-        {{ event.capacity ? "/ " + event.capacity : "" }}
-      </p>
-      <p class="text-gray-600 flex items-center gap-2">
-        <mat-icon class="mr-2 text-gray-500">person</mat-icon
-        ><strong>Created by:</strong> {{ event.creatorEmail }}
-      </p>
-      <p class="text-gray-600 flex items-start">
-        <mat-icon class="mr-2 text-gray-500 mt-1">description</mat-icon
-        ><strong>Description:</strong>
-        <span class="ml-2">{{ event.description || "No description" }}</span>
-      </p>
-    </div>
+  <ng-container *ngIf="event$ | async as event; else loading">
     <div
-      *ngIf="
-        isAuthenticated &&
-        userId !== event.creatorId &&
-        (userEvents$ | async) as userEvents
-      "
-      class="mt-6"
+      class="bg-white border border-gray-300 rounded-lg shadow-md p-8 max-w-2xl mx-auto"
     >
-      <button
-        *ngIf="isUserParticipant(event.id, userEvents)"
-        (click)="leaveEvent(event.id)"
-        class="w-full bg-red-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
-      >
-        Leave
-      </button>
-      <span
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ event.title }}</h2>
+      <div class="space-y-4">
+        <p class="text-gray-600 flex items-center gap-2">
+          <mat-icon class="mr-2 text-gray-500">event</mat-icon
+          ><strong>Date:</strong> {{ event.startDateTime | date : "fullDate" }}
+        </p>
+        <p class="text-gray-600 flex items-center gap-2">
+          <mat-icon class="mr-2 text-gray-500">access_time</mat-icon
+          ><strong>Time:</strong> {{ event.startDateTime | date : "HH:mm" }}
+        </p>
+        <p class="text-gray-600 flex items-center gap-2">
+          <mat-icon class="mr-2 text-gray-500">location_on</mat-icon
+          ><strong>Location:</strong> {{ event.location }}
+        </p>
+        <p class="text-gray-600 flex items-center gap-2">
+          <mat-icon class="mr-2 text-gray-500">group</mat-icon
+          ><strong>Participants:</strong> {{ event.participantCount }}
+          {{ event.capacity ? "/ " + event.capacity : "" }}
+        </p>
+        <p class="text-gray-600 flex items-center gap-2">
+          <mat-icon class="mr-2 text-gray-500">person</mat-icon
+          ><strong>Created by:</strong> {{ event.creatorEmail }}
+        </p>
+        <p class="text-gray-600 flex items-start">
+          <mat-icon class="mr-2 text-gray-500 mt-1">description</mat-icon
+          ><strong>Description:</strong>
+          <span class="ml-2">{{ event.description || "No description" }}</span>
+        </p>
+      </div>
+      <div
         *ngIf="
-          !isUserParticipant(event.id, userEvents) &&
-          event.participantCount >= (event.capacity ?? Number.MAX_VALUE)
+          isAuthenticated &&
+          userId !== event.creatorId &&
+          (userEvents$ | async) as userEvents
         "
-        class="block text-center bg-gray-300 text-gray-700 font-medium py-2 rounded-md shadow-sm select-none"
+        class="mt-6"
       >
-        Full
-      </span>
-      <button
-        *ngIf="
-          !isUserParticipant(event.id, userEvents) &&
-          event.participantCount < (event.capacity ?? Number.MAX_VALUE)
-        "
-        (click)="joinEvent(event.id)"
-        class="w-full bg-green-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Join
-      </button>
+        <button
+          *ngIf="isUserParticipant(event.id, userEvents)"
+          (click)="leaveEvent(event.id)"
+          class="w-full bg-red-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          Leave
+        </button>
+        <span
+          *ngIf="
+            !isUserParticipant(event.id, userEvents) &&
+            event.participantCount >= (event.capacity ?? Number.MAX_VALUE)
+          "
+          class="block text-center bg-gray-300 text-gray-700 font-medium py-2 rounded-md shadow-sm select-none"
+        >
+          Full
+        </span>
+        <button
+          *ngIf="
+            !isUserParticipant(event.id, userEvents) &&
+            event.participantCount < (event.capacity ?? Number.MAX_VALUE)
+          "
+          (click)="joinEvent(event.id)"
+          class="w-full bg-green-600 text-white font-medium py-2 rounded-md shadow-md transition-colors duration-200 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Join
+        </button>
+      </div>
+      <div *ngIf="isAuthenticated && userId === event.creatorId" class="mt-6">
+        <button
+          [routerLink]="['/events', event.id, 'edit']"
+          color="primary"
+          class="bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Edit
+        </button>
+        <button
+          (click)="deleteEvent(event.id)"
+          color="warn"
+          class="bg-red-600 text-white font-medium py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          Delete
+        </button>
+      </div>
     </div>
-  </div>
+  </ng-container>
   <ng-template #loading>
     <div class="text-center text-gray-600">Loading event...</div>
   </ng-template>

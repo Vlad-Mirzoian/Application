@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridWeek from '@fullcalendar/timegrid';
+import timeGridPlugin from '@fullcalendar/timeGrid';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { EventService, CalendarEventDto } from '../event.service';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
@@ -18,20 +18,20 @@ import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 })
 export class CalendarComponent implements OnInit {
   calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridWeek],
+    plugins: [dayGridPlugin, timeGridPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek',
+      right: 'dayGridMonth,dayGridWeek',
     },
     events: [],
     eventClick: this.handleEventClick.bind(this),
     height: 'auto',
     eventTimeFormat: {
-      hour: 'numeric',
+      hour: '2-digit',
       minute: '2-digit',
-      meridiem: 'short',
+      hour12: false,
     },
   };
 

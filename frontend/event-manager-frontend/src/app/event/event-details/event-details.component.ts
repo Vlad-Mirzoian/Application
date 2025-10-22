@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -13,6 +13,8 @@ import {
 } from 'rxjs';
 import { EventService, EventDto, CalendarEventDto } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-event-details',
@@ -35,7 +37,9 @@ export class EventDetailsComponent implements OnInit {
   constructor(
     private eventService: EventService,
     private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.isAuthenticated = this.authService.isAuthenticated();
     this.userId = this.authService.getUserId();
@@ -86,6 +90,36 @@ export class EventDetailsComponent implements OnInit {
         catchError((err) => {
           this.message$.next(err.error?.error || 'Failed to leave event');
           return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  deleteEvent(id: string) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Event',
+        message:
+          'Are you sure you want to delete this event? This action cannot be undone.',
+      },
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        switchMap((result) => {
+          if (!result) return of(null);
+          return this.eventService.deleteEvent(id).pipe(
+            tap(() => this.message$.next('Event deleted successfully!')),
+            tap(() =>
+              setTimeout(() => this.router.navigate(['/events']), 2000)
+            ),
+            catchError((err) => {
+              this.message$.next(err.error?.error || 'Failed to delete event');
+              return of(null);
+            })
+          );
         })
       )
       .subscribe();

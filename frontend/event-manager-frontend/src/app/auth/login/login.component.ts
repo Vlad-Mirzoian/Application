@@ -5,7 +5,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +25,6 @@ interface LoginResult {
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule,
     RouterModule,
   ],
   templateUrl: './login.component.html',
