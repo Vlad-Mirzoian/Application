@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../auth/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -12,14 +13,14 @@ import { AuthService } from '../../auth/auth.service';
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent {
-  isAuthenticated: boolean;
+  isAuthenticated$!: Observable<boolean>;
 
   constructor(private authService: AuthService, private router: Router) {
-    this.isAuthenticated = this.authService.isAuthenticated();
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
   }
 
   logout() {
     this.authService.logout();
-    this.isAuthenticated = false;
+    this.router.navigate(['/auth/login']);
   }
 }

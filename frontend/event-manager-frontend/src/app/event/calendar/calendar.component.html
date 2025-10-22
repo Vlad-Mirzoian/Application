@@ -1,0 +1,43 @@
+<div class="container mx-auto px-4 py-8">
+  <div *ngIf="message$ | async as message" class="mb-4 text-center">
+    <p
+      class="inline-block bg-red-100 text-red-800 px-4 py-2 rounded-md shadow-sm"
+    >
+      {{ message }}
+    </p>
+  </div>
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-bold text-gray-800">My Events</h2>
+    <p class="text-gray-600 mt-2">View and manage your event calendar</p>
+  </div>
+  <div class="flex justify-end mb-4">
+    <button
+      mat-raised-button
+      color="primary"
+      class="bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      disabled
+    >
+      Create Event
+    </button>
+  </div>
+  <div
+    *ngIf="(events$ | async)?.length; else noEvents"
+    class="bg-white border border-gray-300 rounded-lg shadow-sm p-6"
+  >
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+  <ng-template #noEvents>
+    <div
+      class="bg-white border border-gray-300 rounded-lg shadow-sm p-6 text-center"
+    >
+      <p class="text-gray-600 text-lg">
+        You are not part of any events yet. Explore public events and join.
+      </p>
+      <a
+        routerLink="/events"
+        class="text-blue-500 hover:underline mt-4 inline-block"
+        >Go to Public Events</a
+      >
+    </div>
+  </ng-template>
+</div>

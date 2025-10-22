@@ -62,12 +62,23 @@
       </div>
       <button
         type="submit"
-        [disabled]="registerForm.invalid"
+        [disabled]="(isLoading$ | async) || registerForm.invalid"
         class="w-full bg-blue-600 text-white font-medium py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400"
       >
-        Sign up
+        {{ (isLoading$ | async) ? "Signing up..." : "Sign up" }}
       </button>
     </form>
+    <div *ngIf="registerResult$ | async as result" class="mt-4 text-center">
+      <p
+        [ngClass]="{
+          'text-green-600': result.success,
+          'text-red-600': !result.success,
+          'font-medium': true
+        }"
+      >
+        {{ result.message }}
+      </p>
+    </div>
     <p class="mt-4 text-center text-gray-600">
       Already have an account?
       <a routerLink="/auth/login" class="text-blue-500 hover:underline"

@@ -11,6 +11,12 @@ import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { BehaviorSubject, catchError, of, Subject, switchMap, tap } from 'rxjs';
+
+interface LoginResult {
+  success: boolean;
+  message: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -28,12 +34,36 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  private submit$ = new Subject<void>();
+
+  isLoading$ = new BehaviorSubject(false);
+
+  loginResult$ = this.submit$.pipe(
+    tap(() => this.isLoading$.next(true)),
+    switchMap(() =>
+      this.authService.login(this.loginForm.value).pipe(
+        switchMap(() => {
+          this.router.navigate(['/events']);
+          return of({
+            success: true,
+            message: 'Sign in successful!',
+          } as LoginResult);
+        }),
+        catchError((error) =>
+          of({
+            success: false,
+            message: error.error?.error || 'Sign in failed',
+          } as LoginResult)
+        ),
+        tap(() => this.isLoading$.next(false))
+      )
+    )
+  );
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -41,18 +71,8 @@ export class LoginComponent {
     });
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.loginForm.invalid) return;
-    try {
-      await this.authService.login(this.loginForm.value).toPromise();
-      this.snackBar.open('Sign in successful!', 'Close', { duration: 3000 });
-      setTimeout(() => {
-        this.router.navigate(['/events']);
-      }, 2000);
-    } catch (error: any) {
-      this.snackBar.open(error.error?.error || 'Sign in failed', 'Close', {
-        duration: 3000,
-      });
-    }
+    this.submit$.next();
   }
 }

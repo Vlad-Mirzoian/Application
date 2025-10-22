@@ -1,4 +1,11 @@
 <div class="container mx-auto px-4 py-8">
+  <div *ngIf="message$ | async as message" class="mb-4 text-center">
+    <p
+      class="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-md shadow-sm"
+    >
+      {{ message }}
+    </p>
+  </div>
   <div
     *ngIf="event$ | async as event; else loading"
     class="bg-white border border-gray-300 rounded-lg shadow-md p-8 max-w-2xl mx-auto"
@@ -66,11 +73,6 @@
       >
         Join
       </button>
-    </div>
-    <div class="mt-4">
-      <a routerLink="/events" class="text-blue-500 hover:underline"
-        >Back to Events</a
-      >
     </div>
   </div>
   <ng-template #loading>

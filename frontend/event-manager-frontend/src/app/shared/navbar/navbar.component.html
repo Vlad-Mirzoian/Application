@@ -8,20 +8,18 @@
     >
       Events
     </a>
-
-    <button
-      *ngIf="isAuthenticated"
-      (click)="logout()"
-      class="bg-indigo-600 text-white font-medium px-4 py-2 rounded hover:bg-indigo-700 transition-colors"
-    >
-      Logout
-    </button>
     <a
-      *ngIf="!isAuthenticated"
-      routerLink="/auth/login"
-      class="bg-indigo-600 text-white font-medium px-4 py-2 rounded hover:bg-indigo-700 transition-colors"
+      routerLink="/me/events"
+      class="text-gray-700 hover:text-blue-600 font-medium transition-colors"
     >
-      Login
+      My Events
+    </a>
+
+    <button *ngIf="isAuthenticated$ | async" (click)="logout()">
+      Sign out
+    </button>
+    <a *ngIf="!(isAuthenticated$ | async)" routerLink="/auth/login">
+      Sign in
     </a>
   </div>
 </nav>

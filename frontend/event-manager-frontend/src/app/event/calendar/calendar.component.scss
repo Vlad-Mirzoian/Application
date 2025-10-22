@@ -1,0 +1,12 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:host ::ng-deep .blue-snackbar {
+  background-color: #2563eb;
+  color: white;
+}
+
+:host ::ng-deep .fc {
+  max-width: 100%;
+}

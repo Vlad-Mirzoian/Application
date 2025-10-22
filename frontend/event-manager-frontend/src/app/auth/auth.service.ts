@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from '../environments/environment';
 import { SafeJwtHelperService } from '../shared/safe-jwt-helper.service';
 
@@ -21,7 +20,16 @@ export interface AuthRequest {
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private jwtHelper: SafeJwtHelperService) {}
+  private authSubject: BehaviorSubject<boolean>;
+  isAuthenticated$: Observable<boolean>;
+
+  constructor(
+    private http: HttpClient,
+    private jwtHelper: SafeJwtHelperService
+  ) {
+    this.authSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
+    this.isAuthenticated$ = this.authSubject.asObservable();
+  }
 
   register(data: AuthRequest): Observable<AuthResponse> {
     return this.http
@@ -30,14 +38,18 @@ export class AuthService {
   }
 
   login(data: AuthRequest): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.apiUrl}/auth/login`, data)
-      .pipe(tap((response) => this.setToken(response.token)));
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data).pipe(
+      tap((response) => {
+        this.setToken(response.token);
+        this.authSubject.next(true);
+      })
+    );
   }
 
   logout(): void {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('token');
+    this.authSubject.next(false);
   }
 
   isAuthenticated(): boolean {

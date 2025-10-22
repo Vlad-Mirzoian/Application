@@ -11,6 +11,20 @@ import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import {
+  BehaviorSubject,
+  catchError,
+  firstValueFrom,
+  of,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
+
+interface RegisterResult {
+  success: boolean;
+  message: string;
+}
 
 @Component({
   selector: 'app-register',
@@ -28,12 +42,36 @@ import { CommonModule } from '@angular/common';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  private submit$ = new Subject<void>();
+
+  isLoading$ = new BehaviorSubject(false);
+
+  registerResult$ = this.submit$.pipe(
+    tap(() => this.isLoading$.next(true)),
+    switchMap(() =>
+      this.authService.register(this.registerForm.value).pipe(
+        switchMap(() => {
+          this.router.navigate(['/auth/login']);
+          return of({
+            success: true,
+            message: 'Sign up successful!',
+          } as RegisterResult);
+        }),
+        catchError((error) =>
+          of({
+            success: false,
+            message: error.error?.error || 'Sign up failed',
+          } as RegisterResult)
+        ),
+        tap(() => this.isLoading$.next(false))
+      )
+    )
+  );
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private router: Router
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -43,18 +81,6 @@ export class RegisterComponent {
 
   async onSubmit() {
     if (this.registerForm.invalid) return;
-    try {
-      await this.authService.register(this.registerForm.value).toPromise();
-      this.snackBar.open('Sign up completed!', 'Close', {
-        duration: 3000,
-      });
-      setTimeout(() => {
-        this.router.navigate(['/auth/login']);
-      }, 2000);
-    } catch (error: any) {
-      this.snackBar.open(error.error?.error || 'Sign up failed', 'Close', {
-        duration: 3000,
-      });
-    }
+    this.submit$.next();
   }
 }
