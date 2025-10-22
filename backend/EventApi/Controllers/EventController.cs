@@ -21,7 +21,6 @@ namespace EventApi.Controllers
         public async Task<ActionResult<List<EventResponseDto>>> GetPublicEvents()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            Console.WriteLine($"[DEBUG] UserId from token: {userIdClaim}");
             var events = await _eventService.GetPublicEventsAsync(
                 userIdClaim != null ? Guid.Parse(userIdClaim) : null
             );

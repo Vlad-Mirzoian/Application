@@ -26,19 +26,19 @@ namespace EventApi.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            var statusCode = ex switch
+            var (statusCode, message) = ex switch
             {
-                InvalidCredentialsException => HttpStatusCode.Unauthorized,
-                EmailAlreadyExistsException => HttpStatusCode.Conflict,
-                EventNotFoundException => HttpStatusCode.NotFound,
-                ForbiddenAccessException => HttpStatusCode.Forbidden,
-                AlreadyJoinedException => HttpStatusCode.Conflict,
-                EventFullException => HttpStatusCode.Conflict,
-                NotParticipantException => HttpStatusCode.Forbidden,
-                _ => HttpStatusCode.BadRequest
+                InvalidCredentialsException => (HttpStatusCode.Unauthorized, ex.Message),
+                EmailAlreadyExistsException => (HttpStatusCode.Conflict, ex.Message),
+                EventNotFoundException => (HttpStatusCode.NotFound, ex.Message),
+                ForbiddenAccessException => (HttpStatusCode.Forbidden, ex.Message),
+                AlreadyJoinedException => (HttpStatusCode.Conflict, ex.Message),
+                EventFullException => (HttpStatusCode.Conflict, ex.Message),
+                NotParticipantException => (HttpStatusCode.Forbidden, ex.Message),
+                _ => (HttpStatusCode.InternalServerError, "Internal server error")
             };
 
-            var result = JsonSerializer.Serialize(new { error = ex.Message });
+            var result = JsonSerializer.Serialize(new { error = message });
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;
             return context.Response.WriteAsync(result);
@@ -54,6 +54,7 @@ namespace EventApi.Middlewares
     {
         public EmailAlreadyExistsException(string message) : base(message) { }
     }
+
     public class EventNotFoundException : Exception
     {
         public EventNotFoundException(string message) : base(message) { }
@@ -78,5 +79,4 @@ namespace EventApi.Middlewares
     {
         public NotParticipantException(string message) : base(message) { }
     }
-
 }
