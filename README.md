@@ -6,8 +6,6 @@
 
 This application allows users to register, log in, browse public events, create/edit their own events, join or leave events, and view their personal events in a calendar.
 
----
-
 ## Requirements
 
 Before starting, make sure you have the following installed:
@@ -17,21 +15,19 @@ Before starting, make sure you have the following installed:
 - [Node.js 18+](https://nodejs.org/) (for local frontend development)
 - [.NET SDK 9+](https://dotnet.microsoft.com/download) (for local backend development)
 
----
-
 ## Installation and Startup
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/event-manager.git
-cd event-manager
+git clone https://github.com/Vlad-Mirzoian/Application.git
+cd Application
 ```
 
 ### 2. Create an .env file based on the template
 
 ```bash
-   cp .env.template .env
+cp .env.template .env
 ```
 
 ### 3. Fill in the .env variables
@@ -41,15 +37,15 @@ cd event-manager
 ### 4. Start the project using Docker
 
 ```bash
-   docker-compose up --build
+docker-compose up --build
 ```
 
 ### Services
 
-- **Backend:** [http://localhost:5000](http://localhost:5000)
-- **Swagger UI:** [http://localhost:5000/swagger](http://localhost:5000/swagger)
+- **Backend:** [http://localhost:5250](http://localhost:5250)
+- **Swagger UI:** [http://localhost:5250/swagger](http://localhost:5250/swagger)
 - **Frontend:** [http://localhost:4200](http://localhost:4200)
-- **PostgreSQL:** `localhost:5432`
+- **PostgreSQL:** `localhost:5433`
 
 ---
 
@@ -79,8 +75,6 @@ JWT_KEY=your-secure-key-32-chars-long-minimum
 API_URL=http://localhost:5250/api
 ```
 
----
-
 ## Default Credentials
 
 The seeded database contains test users and events.
@@ -97,17 +91,15 @@ The seeded database contains test users and events.
 | Event   | Visibility | Creator | Capacity |
 | ------- | ---------- | ------- | -------- |
 | Event 1 | Public     | user1   | 10       |
-| Event 2 | Public     | user1   | —        |
-| Event 3 | Private    | user2   | —        |
+| Event 2 | Public     | user1   | 15       |
+| Event 3 | Private    | user2   | 5        |
 
 **Participation:** `user2` is a participant in **Event 1**
-
----
 
 ## API Endpoints
 
 API documentation is available via **Swagger**:  
-👉 [http://localhost:5250/swagger](http://localhost:5000/swagger)
+👉 [http://localhost:5250/swagger](http://localhost:5250/swagger)
 
 ### Main Endpoints
 
@@ -124,8 +116,6 @@ API documentation is available via **Swagger**:
 | POST   | `/api/events/{id}/leave` | Leave an event               | ✅   |
 | GET    | `/api/users/me/events`   | Get user’s events (calendar) | ✅   |
 
----
-
 ## Deployment
 
 For demo or production use, the project can be deployed on **Heroku**, **AWS**, or any containerized environment.  
@@ -135,15 +125,11 @@ Currently, it runs via:
 docker-compose up
 ```
 
----
-
 ## Development Notes
 
 - Use **Angular DevTools** for frontend debugging
 - Use **Swagger** for backend testing
 - Test both **desktop** and **mobile** resolutions
-
----
 
 ## License
 
