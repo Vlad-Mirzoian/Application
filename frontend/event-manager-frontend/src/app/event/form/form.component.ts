@@ -8,10 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatRadioModule } from '@angular/material/radio';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import {
@@ -34,10 +31,7 @@ interface SubmitResult {
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
-    MatInputModule,
-    MatDatepickerModule,
     MatNativeDateModule,
-    MatRadioModule,
   ],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss'],
@@ -77,16 +71,18 @@ export class FormComponent implements OnInit {
           } as SubmitResult);
         }
 
-        const date: Date = this.eventForm.value.startDate;
+        const rawDate = this.eventForm.value.startDate;
         const [hours, minutes] = this.eventForm.value.startTime
           .split(':')
           .map(Number);
-        date.setHours(hours, minutes);
+        const localDate = new Date(rawDate + 'T00:00:00');
+        localDate.setHours(hours, minutes);
+        const utcDateTime = localDate.toISOString();
 
         const dto: EventCreateDto | EventUpdateDto = {
           title: this.eventForm.value.title,
           description: this.eventForm.value.description || undefined,
-          startDateTime: date.toISOString(),
+          startDateTime: utcDateTime,
           location: this.eventForm.value.location,
           capacity: this.eventForm.value.capacity || undefined,
           visibility: this.eventForm.value.visibility,
@@ -98,12 +94,12 @@ export class FormComponent implements OnInit {
               ? this.eventService.updateEvent(event.id, dto)
               : this.eventService.createEvent(dto as EventCreateDto)
           ),
-          switchMap(() => {
-            this.router.navigate(['/me/events']);
-            return of({
-              success: true,
-              message: 'Operation successful!',
-            } as SubmitResult);
+          tap(() => {
+            this.router.navigate(['/me/events'], {
+              state: {
+                message: 'Operation successfull!',
+              },
+            });
           }),
           catchError((err) => {
             return of({
@@ -137,10 +133,11 @@ export class FormComponent implements OnInit {
     const date = new Date(event.startDateTime);
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
+
     this.eventForm.patchValue({
       title: event.title,
       description: event.description,
-      startDate: date,
+      startDate: date.toISOString().split('T')[0],
       startTime: `${hours}:${minutes}`,
       location: event.location,
       capacity: event.capacity,

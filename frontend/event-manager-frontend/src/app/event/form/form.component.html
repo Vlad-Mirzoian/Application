@@ -1,210 +1,297 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="text-center mb-8">
-    <h2 class="text-3xl font-bold text-gray-800">
-      {{ (event$ | async) ? "Edit Event" : "Create Event" }}
-    </h2>
-    <p class="text-gray-600 mt-2">
-      {{
-        (event$ | async)
-          ? "Update your event details"
-          : "Plan a new event and invite others"
-      }}
-    </p>
-  </div>
-  <div *ngIf="submitResult$ | async as result" class="mb-4 text-center">
-    <p
-      [ngClass]="{
-        'text-green-600': result.success,
-        'text-red-600': !result.success,
-        'font-medium': true
-      }"
-    >
-      {{ result.message }}
-    </p>
-  </div>
-  <div
-    class="bg-white border border-gray-300 rounded-lg shadow-sm p-6 max-w-2xl mx-auto"
-  >
-    <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
-      <div class="mb-4">
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-1"
-          >Title</label
-        >
-        <input
-          id="title"
-          matInput
-          formControlName="title"
-          type="text"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div
-          *ngIf="
-            eventForm.get('title')?.touched && eventForm.get('title')?.invalid
-          "
-          class="text-red-600 text-sm mt-1"
-        >
-          <div *ngIf="eventForm.get('title')?.hasError('required')">
-            Title is required
-          </div>
-          <div *ngIf="eventForm.get('title')?.hasError('maxlength')">
-            Title must be 100 characters or less
-          </div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label
-          for="description"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >Description (optional)</label
-        >
-        <textarea
-          id="description"
-          matInput
-          formControlName="description"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows="4"
-        ></textarea>
-      </div>
-      <div class="mb-4">
-        <label
-          for="startDateTimeDate"
-          class="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Start Date
-        </label>
-        <input
-          id="startDateTimeDate"
-          matInput
-          [matDatepicker]="picker"
-          formControlName="startDate"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <div
-          *ngIf="
-            eventForm.get('startDate')?.touched &&
-            eventForm.get('startDate')?.hasError('required')
-          "
-          class="text-red-600 text-sm mt-1"
-        >
-          Date is required
-        </div>
-      </div>
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4 max-w-3xl">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-gray-900">
+        {{ (event$ | async) ? "Edit Event" : "Create Event" }}
+      </h2>
+      <p class="text-gray-600 mt-1">
+        {{
+          (event$ | async)
+            ? "Update your event details"
+            : "Plan a new event and invite others"
+        }}
+      </p>
+    </div>
 
-      <div class="mb-4">
-        <label
-          for="startTime"
-          class="block text-sm font-medium text-gray-700 mb-1"
+    <div
+      *ngIf="submitResult$ | async as result"
+      class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top duration-300"
+    >
+      <div
+        [ngClass]="{
+          'bg-green-50 border-green-200 text-green-800': result.success,
+          'bg-red-50 border-red-200 text-red-800': !result.success
+        }"
+        class="px-5 py-3 rounded-lg shadow-lg flex items-center text-sm font-medium min-w-max"
+      >
+        <svg
+          *ngIf="result.success"
+          class="w-5 h-5 mr-2"
+          fill="currentColor"
+          viewBox="0 0 20 20"
         >
-          Start Time
-        </label>
-        <input
-          id="startTime"
-          type="time"
-          formControlName="startTime"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div
-          *ngIf="
-            eventForm.get('startTime')?.touched &&
-            eventForm.get('startTime')?.hasError('required')
-          "
-          class="text-red-600 text-sm mt-1"
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <svg
+          *ngIf="!result.success"
+          class="w-5 h-5 mr-2"
+          fill="currentColor"
+          viewBox="0 0 20 20"
         >
-          Time is required
-        </div>
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        {{ result.message }}
       </div>
-      <div class="mb-4">
-        <label
-          for="location"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >Location</label
-        >
-        <input
-          id="location"
-          matInput
-          formControlName="location"
-          type="text"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div
-          *ngIf="
-            eventForm.get('location')?.touched &&
-            eventForm.get('location')?.invalid
-          "
-          class="text-red-600 text-sm mt-1"
-        >
-          <div *ngIf="eventForm.get('location')?.hasError('required')">
-            Location is required
-          </div>
-          <div *ngIf="eventForm.get('location')?.hasError('maxlength')">
-            Location must be 200 characters or less
-          </div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label
-          for="capacity"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >Capacity (optional)</label
-        >
-        <input
-          id="capacity"
-          matInput
-          formControlName="capacity"
-          type="number"
-          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div
-          *ngIf="
-            eventForm.get('capacity')?.touched &&
-            eventForm.get('capacity')?.hasError('min')
-          "
-          class="text-red-600 text-sm mt-1"
-        >
-          Capacity must be at least 1
-        </div>
-      </div>
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1"
-          >Visibility</label
-        >
-        <mat-radio-group formControlName="visibility" class="flex space-x-4">
-          <mat-radio-button [value]="true" class="text-gray-700"
-            >Public</mat-radio-button
+    </div>
+
+    <div
+      class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8"
+    >
+      <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div>
+          <label
+            for="title"
+            class="block text-sm font-medium text-gray-700 mb-2"
           >
-          <mat-radio-button [value]="false" class="text-gray-700"
-            >Private</mat-radio-button
+            Title <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200 placeholder:text-gray-400"
+            placeholder="Event title"
+            [class.border-red-500]="
+              eventForm.get('title')?.touched && eventForm.get('title')?.invalid
+            "
+          />
+          <div
+            *ngIf="
+              eventForm.get('title')?.touched && eventForm.get('title')?.invalid
+            "
+            class="mt-1 text-sm text-red-600"
           >
-        </mat-radio-group>
-      </div>
-      <div class="flex justify-between">
-        <button
-          type="button"
-          color="warn"
-          class="bg-red-600 text-white font-medium py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          (click)="cancel()"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          color="primary"
-          class="bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          [disabled]="(isLoading$ | async) || eventForm.invalid"
-        >
-          {{
-            (event$ | async)
-              ? (isLoading$ | async)
-                ? "Updating event..."
-                : "Update Event"
-              : (isLoading$ | async)
-              ? "Creating event..."
-              : "Create Event"
-          }}
-        </button>
-      </div>
-    </form>
+            <div *ngIf="eventForm.get('title')?.hasError('required')">
+              Title is required
+            </div>
+            <div *ngIf="eventForm.get('title')?.hasError('maxlength')">
+              Max 100 characters
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="description"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Description (optional)
+          </label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200 resize-none placeholder:text-gray-400"
+            placeholder="Describe your event..."
+          ></textarea>
+        </div>
+
+        <div>
+          <label
+            for="startDate"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Start Date <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="startDate"
+            type="date"
+            formControlName="startDate"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200"
+            [class.border-red-500]="
+              eventForm.get('startDate')?.touched &&
+              eventForm.get('startDate')?.invalid
+            "
+          />
+          <div
+            *ngIf="
+              eventForm.get('startDate')?.touched &&
+              eventForm.get('startDate')?.invalid
+            "
+            class="mt-1 text-sm text-red-600"
+          >
+            Date is required
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="startTime"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Start Time <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="startTime"
+            type="time"
+            formControlName="startTime"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200"
+            [class.border-red-500]="
+              eventForm.get('startTime')?.touched &&
+              eventForm.get('startTime')?.invalid
+            "
+          />
+          <div
+            *ngIf="
+              eventForm.get('startTime')?.touched &&
+              eventForm.get('startTime')?.invalid
+            "
+            class="mt-1 text-sm text-red-600"
+          >
+            Time is required
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="location"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Location <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="location"
+            type="text"
+            formControlName="location"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200 placeholder:text-gray-400"
+            placeholder="Where will it take place?"
+            [class.border-red-500]="
+              eventForm.get('location')?.touched &&
+              eventForm.get('location')?.invalid
+            "
+          />
+          <div
+            *ngIf="
+              eventForm.get('location')?.touched &&
+              eventForm.get('location')?.invalid
+            "
+            class="mt-1 text-sm text-red-600"
+          >
+            <div *ngIf="eventForm.get('location')?.hasError('required')">
+              Location is required
+            </div>
+            <div *ngIf="eventForm.get('location')?.hasError('maxlength')">
+              Max 200 characters
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="capacity"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Capacity (optional)
+          </label>
+          <input
+            id="capacity"
+            type="number"
+            formControlName="capacity"
+            min="1"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all duration-200 placeholder:text-gray-400"
+            placeholder="Leave empty for unlimited"
+            [class.border-red-500]="
+              eventForm.get('capacity')?.touched &&
+              eventForm.get('capacity')?.hasError('min')
+            "
+          />
+          <div
+            *ngIf="
+              eventForm.get('capacity')?.touched &&
+              eventForm.get('capacity')?.hasError('min')
+            "
+            class="mt-1 text-sm text-red-600"
+          >
+            Minimum capacity is 1
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3"
+            >Visibility</label
+          >
+          <div class="flex items-center space-x-6">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                formControlName="visibility"
+                [value]="true"
+                class="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300"
+              />
+              <span class="ml-2 text-gray-700 font-medium">Public</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                formControlName="visibility"
+                [value]="false"
+                class="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300"
+              />
+              <span class="ml-2 text-gray-700 font-medium">Private</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-between pt-4">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="px-6 py-3 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="(isLoading$ | async) || eventForm.invalid"
+            class="px-6 py-3 rounded-lg font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-100 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
+          >
+            <span *ngIf="!(isLoading$ | async)">
+              {{ (event$ | async) ? "Update Event" : "Create Event" }}
+            </span>
+            <span *ngIf="isLoading$ | async" class="flex items-center">
+              <svg
+                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ (event$ | async) ? "Updating..." : "Creating..." }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

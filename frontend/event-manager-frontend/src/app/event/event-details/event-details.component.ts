@@ -6,15 +6,27 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   BehaviorSubject,
   catchError,
+  EMPTY,
+  map,
   Observable,
   of,
+  startWith,
+  Subject,
   switchMap,
   tap,
 } from 'rxjs';
 import { EventService, EventDto, CalendarEventDto } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
+
+interface EventAction {
+  type: 'join' | 'leave' | 'delete';
+  id: string;
+}
+
+interface EventActionMessage {
+  success: boolean;
+  message: string;
+}
 
 @Component({
   selector: 'app-event-details',
@@ -27,19 +39,19 @@ export class EventDetailsComponent implements OnInit {
   Number = Number;
   event$!: Observable<EventDto>;
   userEvents$!: Observable<CalendarEventDto[]>;
-  message$ = new BehaviorSubject<string | null>(null);
+  submitResult$!: Observable<EventActionMessage | null>;
   isAuthenticated: boolean;
   userId: string | null;
 
   private refreshUserEvents$ = new BehaviorSubject<void>(undefined);
   private refreshEvents$ = new BehaviorSubject<void>(undefined);
+  private actionTrigger$ = new Subject<EventAction>();
 
   constructor(
     private eventService: EventService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router,
-    private dialog: MatDialog
+    private router: Router
   ) {
     this.isAuthenticated = this.authService.isAuthenticated();
     this.userId = this.authService.getUserId();
@@ -55,74 +67,71 @@ export class EventDetailsComponent implements OnInit {
         switchMap(() => this.eventService.getUserEvents())
       );
     }
+    this.submitResult$ = this.actionTrigger$.pipe(
+      switchMap(({ type, id }) => {
+        if (type === 'delete') {
+          return this.eventService.deleteEvent(id).pipe(
+            tap(() => {
+              this.refreshUserEvents$.next();
+              this.refreshEvents$.next();
+              this.router.navigate(['/events'], {
+                state: {
+                  message: 'Event deleted successfully!',
+                },
+              });
+            }),
+            switchMap(() => EMPTY),
+            catchError((err) =>
+              of({
+                success: false,
+                message: err.error?.error || 'Failed to delete event',
+              })
+            )
+          );
+        }
+        const action$ =
+          type === 'join'
+            ? this.eventService.joinEvent(id)
+            : this.eventService.leaveEvent(id);
+
+        return action$.pipe(
+          tap(() => {
+            this.refreshUserEvents$.next();
+            this.refreshEvents$.next();
+          }),
+          map(() => ({
+            success: true,
+            message:
+              type === 'join'
+                ? 'Joined event successfully!'
+                : 'Left event successfully!',
+          })),
+          catchError((err) =>
+            of({
+              success: false,
+              message:
+                err.error?.error ||
+                (type === 'join'
+                  ? 'Failed to join event'
+                  : 'Failed to leave event'),
+            })
+          )
+        );
+      }),
+      startWith(null)
+    );
   }
 
   joinEvent(id: string) {
-    this.eventService
-      .joinEvent(id)
-      .pipe(
-        tap(() => this.message$.next('Joined event successfully!')),
-        tap(() => this.refreshUserEvents$.next()),
-        tap(() => this.refreshEvents$.next()),
-        switchMap(() => {
-          this.refreshUserEvents$.next();
-          return of(null);
-        }),
-        catchError((err) => {
-          this.message$.next(err.error?.error || 'Failed to join event');
-          return of(null);
-        })
-      )
-      .subscribe();
+    this.actionTrigger$.next({ type: 'join', id });
   }
 
   leaveEvent(id: string) {
-    this.eventService
-      .leaveEvent(id)
-      .pipe(
-        tap(() => this.message$.next('Left event successfully!')),
-        tap(() => this.refreshUserEvents$.next()),
-        tap(() => this.refreshEvents$.next()),
-        switchMap(() => {
-          this.refreshUserEvents$.next();
-          return of(null);
-        }),
-        catchError((err) => {
-          this.message$.next(err.error?.error || 'Failed to leave event');
-          return of(null);
-        })
-      )
-      .subscribe();
+    this.actionTrigger$.next({ type: 'leave', id });
   }
 
   deleteEvent(id: string) {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Delete Event',
-        message:
-          'Are you sure you want to delete this event? This action cannot be undone.',
-      },
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(
-        switchMap((result) => {
-          if (!result) return of(null);
-          return this.eventService.deleteEvent(id).pipe(
-            tap(() => this.message$.next('Event deleted successfully!')),
-            tap(() =>
-              setTimeout(() => this.router.navigate(['/events']), 2000)
-            ),
-            catchError((err) => {
-              this.message$.next(err.error?.error || 'Failed to delete event');
-              return of(null);
-            })
-          );
-        })
-      )
-      .subscribe();
+    this.actionTrigger$.next({ type: 'delete', id });
   }
 
   isUserParticipant(eventId: string, userEvents: CalendarEventDto[]): boolean {

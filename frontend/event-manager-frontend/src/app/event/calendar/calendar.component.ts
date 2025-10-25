@@ -1,13 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timeGrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { EventService, CalendarEventDto } from '../event.service';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  concat,
+  map,
+  Observable,
+  of,
+  timer,
+} from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
@@ -36,9 +44,15 @@ export class CalendarComponent implements OnInit {
   };
 
   events$!: Observable<CalendarEventDto[]>;
-  message$ = new BehaviorSubject<string | null>(null);
-
-  constructor(private eventService: EventService) {}
+  errorMessage$ = new BehaviorSubject<string | null>(null);
+  temporaryMessage$: Observable<string | null> = of(null);
+  constructor(private eventService: EventService, private router: Router) {
+    const nav = this.router.getCurrentNavigation();
+    const stateMessage = nav?.extras?.state?.['message'] || null;
+    this.temporaryMessage$ = stateMessage
+      ? concat(of(stateMessage), timer(3000).pipe(map(() => null)))
+      : of(null);
+  }
 
   ngOnInit() {
     this.events$ = this.eventService.getUserEvents().pipe(
@@ -49,14 +63,13 @@ export class CalendarComponent implements OnInit {
             id: event.id,
             title: event.title,
             start: event.start,
-            backgroundColor: event.isCreator ? '#2563eb' : '#16a34a',
-            borderColor: event.isCreator ? '#2563eb' : '#16a34a',
+            classNames: [event.isCreator ? 'creator' : 'participant'],
           })),
         };
         return events;
       }),
       catchError((error) => {
-        this.message$.next(error.error?.error || 'Failed to load events');
+        this.errorMessage$.next(error.error?.error || 'Failed to load events');
         return of([]);
       })
     );

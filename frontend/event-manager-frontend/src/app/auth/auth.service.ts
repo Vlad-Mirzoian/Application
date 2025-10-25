@@ -5,7 +5,11 @@ import { tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { SafeJwtHelperService } from '../shared/safe-jwt-helper.service';
 
-export interface AuthResponse {
+export interface RegisterResponse {
+  message: string;
+}
+
+export interface LoginResponse {
   token: string;
 }
 
@@ -31,19 +35,22 @@ export class AuthService {
     this.isAuthenticated$ = this.authSubject.asObservable();
   }
 
-  register(data: AuthRequest): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.apiUrl}/auth/register`, data)
-      .pipe(tap((response) => this.setToken(response.token)));
+  register(data: AuthRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(
+      `${this.apiUrl}/auth/register`,
+      data
+    );
   }
 
-  login(data: AuthRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data).pipe(
-      tap((response) => {
-        this.setToken(response.token);
-        this.authSubject.next(true);
-      })
-    );
+  login(data: AuthRequest): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/auth/login`, data)
+      .pipe(
+        tap((response) => {
+          this.setToken(response.token);
+          this.authSubject.next(true);
+        })
+      );
   }
 
   logout(): void {

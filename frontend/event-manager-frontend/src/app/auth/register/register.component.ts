@@ -5,26 +5,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import {
-  BehaviorSubject,
-  catchError,
-  firstValueFrom,
-  of,
-  Subject,
-  switchMap,
-  tap,
-} from 'rxjs';
-
-interface RegisterResult {
-  success: boolean;
-  message: string;
-}
+import { BehaviorSubject, catchError, of, Subject, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -34,7 +20,6 @@ interface RegisterResult {
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule,
     RouterModule,
   ],
   templateUrl: './register.component.html',
@@ -43,25 +28,21 @@ interface RegisterResult {
 export class RegisterComponent {
   registerForm: FormGroup;
   private submit$ = new Subject<void>();
-
   isLoading$ = new BehaviorSubject(false);
 
   registerResult$ = this.submit$.pipe(
     tap(() => this.isLoading$.next(true)),
     switchMap(() =>
       this.authService.register(this.registerForm.value).pipe(
-        switchMap(() => {
-          this.router.navigate(['/auth/login']);
-          return of({
-            success: true,
-            message: 'Sign up successful!',
-          } as RegisterResult);
+        tap(() => {
+          this.router.navigate(['/auth/login'], {
+            state: {
+              message: 'Sign up successful! You can now sign in.',
+            },
+          });
         }),
         catchError((error) =>
-          of({
-            success: false,
-            message: error.error?.error || 'Sign up failed',
-          } as RegisterResult)
+          of(error.error?.error || 'Sign up failed. Please try again.')
         ),
         tap(() => this.isLoading$.next(false))
       )
