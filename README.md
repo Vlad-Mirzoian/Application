@@ -26,8 +26,17 @@ cd Application
 
 ### 2. Create an .env file based on the template
 
+- Copy the template:
+  - On Linux/macOS:
+
 ```bash
 cp .env.template .env
+```
+
+- On Windows:
+
+```bash
+copy .env.template .env
 ```
 
 ### 3. Fill in the .env variables
@@ -72,7 +81,7 @@ ng serve
 ```bash
 DB_PASS=your_secure_password
 JWT_KEY=your-secure-key-32-chars-long-minimum
-API_URL=http://localhost:5250/api
+API_URL=http://localhost:5250
 ```
 
 ## Default Credentials
