@@ -54,7 +54,7 @@ cd Application
 cp .env.template .env
 ```
 
-- On Windows:
+  - On Windows:
 
 ```bash
 copy .env.template .env
@@ -85,9 +85,9 @@ docker-compose up --build -d
   - Password: Value of DB_PASS from .env
   - Connect using pgAdmin or psql:
 
-  ```bash
-  bashpsql -h localhost -p 5433 -U postgres -d eventdb
-  ```
+```bash
+psql -h localhost -p 5433 -U postgres -d eventdb
+```
 
 ## Local Development (without Docker)
 
@@ -102,7 +102,7 @@ Ensure all tools listed in the Requirements section are installed.
 1. Clone the develop branch:
 
 ```bash
-bashgit clone --branch develop https://github.com/Vlad-Mirzoian/Application.git
+git clone --branch develop https://github.com/Vlad-Mirzoian/Application.git
 cd Application
 ```
 
@@ -125,7 +125,7 @@ cd Application
 - Edit .env with your values:
 
 ```bash
-  bashDB_PASS=your_secure_password
+  DB_PASS=your_secure_password
   JWT_KEY=your-secure-key-32-chars-long-minimum
   API_URL=http://localhost:5250
 ```
