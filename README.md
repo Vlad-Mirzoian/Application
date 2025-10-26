@@ -48,17 +48,18 @@ cd Application
 ### 2. Create an .env file based on the template
 
 - Copy the template:
+
   - On Linux/macOS:
 
-```bash
-cp .env.template .env
-```
+  ```bash
+  cp .env.template .env
+  ```
 
   - On Windows:
 
-```bash
-copy .env.template .env
-```
+  ```bash
+  copy .env.template .env
+  ```
 
 - Fill in the .env variables
 
@@ -74,7 +75,7 @@ API_URL=http://localhost:5250
 docker-compose up --build -d
 ```
 
-### 4 .Access the services:
+### 4. Access the services:
 
 - **Frontend:** http://localhost:4200
 - **Backend:** http://localhost:5250
@@ -99,21 +100,21 @@ Ensure all tools listed in the Requirements section are installed.
 
 ### Setup
 
-1. Clone the develop branch:
+#### 1. Clone the repository
 
 ```bash
-git clone --branch develop https://github.com/Vlad-Mirzoian/Application.git
+git clone https://github.com/Vlad-Mirzoian/Application.git
 cd Application
 ```
 
-2. Create an .env file:
+#### 2. Create an .env file:
 
 - Copy the template:
 
   - On Linux/macOS:
 
   ```bash
-    cp .env.template .env
+  cp .env.template .env
   ```
 
   - On Windows:
@@ -130,7 +131,7 @@ cd Application
   API_URL=http://localhost:5250
 ```
 
-3. Set up PostgreSQL:
+#### 3. Set up PostgreSQL:
 
 - Install and start PostgreSQL on your machine.
 - Create a database named eventdb:
