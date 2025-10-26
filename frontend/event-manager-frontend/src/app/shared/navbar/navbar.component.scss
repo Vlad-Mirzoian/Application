@@ -1,0 +1,39 @@
+:host {
+  @apply block;
+}
+
+nav {
+  .animate-in {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      @apply px-4;
+    }
+
+    .flex-col {
+      @apply w-full mx-auto border-l border-r border-gray-200 bg-white shadow-lg rounded-b-lg;
+      max-width: 95%;
+    }
+
+    a,
+    button {
+      @apply text-left;
+    }
+
+    .h-px {
+      @apply my-2;
+    }
+
+    button[aria-label="Toggle menu"] {
+      @apply rounded-md;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .flex-col {
+      @apply flex flex-row;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Event Manager PoC
 
-**Proof of Concept (PoC)** for an event management system built with **.NET 9**, **Angular 18**, and **PostgreSQL 16**.
+**Proof of Concept (PoC)** for an event management system built with **.NET 9**, **Angular 18**, and **PostgreSQL 17**.
 
 ## Overview
 
@@ -18,7 +18,7 @@ The project is containerized with Docker for easy setup and deployment, but also
 
 - **Backend**: .NET 9 (ASP.NET Core)
 - **Frontend**: Angular 18
-- **Database**: PostgreSQL 16
+- **Database**: PostgreSQL 17
 - **Containerization**: Docker and Docker Compose
 - **Authentication**: JWT-based
 
@@ -30,11 +30,11 @@ Before starting, ensure you have the following installed:
 | ----------- | ------- | ------------------------------------------------------------------------ | ----------------------------------------------- |
 | Git         | Latest  | [git-scm.com](https://git-scm.com)                                       | Required for cloning the repository             |
 | Docker      | Latest  | [docker.com](https://www.docker.com/get-started)                         | Includes Docker Compose for containerized setup |
-| Node.js     | 20.x    | [nodejs.org](https://nodejs.org)                                         | Required for local frontend development         |
+| Node.js     | 22.x    | [nodejs.org](https://nodejs.org)                                         | Required for local frontend development         |
 | .NET SDK    | 9.0     | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/9.0) | Required for local backend development          |
-| npm         | 11.6.2+ | `npm install -g npm@11.6.2`                                              | Recommended for dependency management           |
-| Angular CLI | 18.2.7  | `npm install -g @angular/cli@18.2.7`                                     | Required for local frontend development         |
-| PostgreSQL  | 16      | [postgresql.org](https://www.postgresql.org/download/)                   | Required for local database setup               |
+| npm         | 10.9.2+ | `npm install -g npm@10.9.2`                                              | Recommended for dependency management           |
+| Angular CLI | 18.2.21  | `npm install -g @angular/cli@18.2.21`                                     | Required for local frontend development         |
+| PostgreSQL  | 17      | [postgresql.org](https://www.postgresql.org/download/)                   | Required for local database setup               |
 
 ## Installation and Startup (Docker - Recommended)
 

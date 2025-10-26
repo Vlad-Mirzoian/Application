@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { RouterModule, Router } from '@angular/router';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -20,14 +19,14 @@ import {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, FullCalendarModule],
+  imports: [CommonModule, RouterModule, FullCalendarModule],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
 })
 export class CalendarComponent implements OnInit {
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin],
-    initialView: 'dayGridMonth',
+    initialView: window.innerWidth < 640 ? 'dayGridWeek' : 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
@@ -46,6 +45,7 @@ export class CalendarComponent implements OnInit {
   events$!: Observable<CalendarEventDto[]>;
   errorMessage$ = new BehaviorSubject<string | null>(null);
   temporaryMessage$: Observable<string | null> = of(null);
+
   constructor(private eventService: EventService, private router: Router) {
     const nav = this.router.getCurrentNavigation();
     const stateMessage = nav?.extras?.state?.['message'] || null;
