@@ -1,3 +1,5 @@
+using EventApi.Dtos.TagDtos;
+
 namespace EventApi.Dtos.EventDtos
 {
     public class CalendarEventDto
@@ -6,5 +8,6 @@ namespace EventApi.Dtos.EventDtos
         public string Title { get; set; } = string.Empty;
         public DateTime Start { get; set; }
         public bool IsCreator { get; set; }
+        public TagDto? FirstTag { get; set; }
     }
 }

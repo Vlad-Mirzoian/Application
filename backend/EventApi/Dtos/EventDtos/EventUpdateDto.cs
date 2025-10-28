@@ -8,5 +8,6 @@ namespace EventApi.Dtos.EventDtos
         public string? Location { get; set; }
         public int? Capacity { get; set; }
         public bool? Visibility { get; set; }
+        public List<Guid>? TagIds { get; set; } = new();
     }
 }

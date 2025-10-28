@@ -1,8 +1,12 @@
 using DotNetEnv;
 using EventApi.Data;
 using EventApi.Middlewares;
-using EventApi.Repositories;
-using EventApi.Services;
+using EventApi.Repositories.AuthRepositories;
+using EventApi.Repositories.EventRepositories;
+using EventApi.Repositories.TagRepositories;
+using EventApi.Services.AuthServices;
+using EventApi.Services.EventServices;
+using EventApi.Services.TagServices;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,6 +98,8 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var app = builder.Build();
 
