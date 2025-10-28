@@ -1,5 +1,5 @@
 using EventApi.Dtos.EventDtos;
-using EventApi.Services;
+using EventApi.Services.EventServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

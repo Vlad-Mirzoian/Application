@@ -1,6 +1,6 @@
 using EventApi.Dtos.EventDtos;
 
-namespace EventApi.Services
+namespace EventApi.Services.EventServices
 {
     public interface IEventService
     {

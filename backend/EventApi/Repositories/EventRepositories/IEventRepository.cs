@@ -1,7 +1,7 @@
 using EventApi.Dtos.EventDtos;
 using EventApi.Models;
 
-namespace EventApi.Repositories
+namespace EventApi.Repositories.EventRepositories
 {
     public interface IEventRepository
     {

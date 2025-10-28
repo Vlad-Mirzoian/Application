@@ -4,7 +4,7 @@ using EventApi.Middlewares;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventApi.Repositories
+namespace EventApi.Repositories.EventRepositories
 {
     public class EventRepository : IEventRepository
     {

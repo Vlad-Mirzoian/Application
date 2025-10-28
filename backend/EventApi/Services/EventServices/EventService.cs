@@ -1,10 +1,10 @@
 using EventApi.Dtos.EventDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
-using EventApi.Repositories;
-using Microsoft.EntityFrameworkCore;
+using EventApi.Repositories.AuthRepositories;
+using EventApi.Repositories.EventRepositories;
 
-namespace EventApi.Services
+namespace EventApi.Services.EventServices
 {
     public class EventService : IEventService
     {

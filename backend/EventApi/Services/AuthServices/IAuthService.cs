@@ -1,6 +1,6 @@
 using EventApi.Dtos.AuthDtos;
 
-namespace EventApi.Services
+namespace EventApi.Services.AuthServices
 {
     public interface IAuthService
     {

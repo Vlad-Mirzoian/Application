@@ -1,13 +1,13 @@
 using EventApi.Dtos.AuthDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
-using EventApi.Repositories;
+using EventApi.Repositories.AuthRepositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace EventApi.Services
+namespace EventApi.Services.AuthServices
 {
     public class AuthService : IAuthService
     {

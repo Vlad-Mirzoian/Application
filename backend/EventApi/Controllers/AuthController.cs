@@ -1,5 +1,5 @@
 using EventApi.Dtos.AuthDtos;
-using EventApi.Services;
+using EventApi.Services.AuthServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventApi.Controllers

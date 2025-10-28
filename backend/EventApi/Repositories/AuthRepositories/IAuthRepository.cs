@@ -1,6 +1,6 @@
 using EventApi.Models;
 
-namespace EventApi.Repositories
+namespace EventApi.Repositories.AuthRepositories
 {
     public interface IAuthRepository
     {
