@@ -1,16 +1,12 @@
 using EventApi.Dtos.EventDtos;
-using EventApi.Services.TagServices;
 using FluentValidation;
 
 namespace EventApi.Validators.EventValidators
 {
     public class EventCreateValidator : AbstractValidator<EventCreateDto>
     {
-        private readonly ITagService _tagService;
-        public EventCreateValidator(ITagService tagService)
+        public EventCreateValidator()
         {
-            _tagService = tagService;
-
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Title is required")
                 .MaximumLength(100).WithMessage("Title must be at most 100 characters");
@@ -33,13 +29,7 @@ namespace EventApi.Validators.EventValidators
                 .NotEmpty().WithMessage("At least one tag is required.")
                 .Must(tags => tags.Count <= 5).WithMessage("Maximum 5 tags allowed.")
                 .Must(tags => tags.Distinct().Count() == tags.Count)
-                .WithMessage("Duplicate tags are not allowed.")
-                .MustAsync(async (tagIds, cancellation) =>
-                {
-                    var existingTags = await _tagService.GetTagsByIdsAsync(tagIds);
-                    return existingTags.Count == tagIds.Count;
-                })
-                .WithMessage("One or more selected tags do not exist.");
+                .WithMessage("Duplicate tags are not allowed.");
         }
     }
 }

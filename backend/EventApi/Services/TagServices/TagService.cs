@@ -13,14 +13,6 @@ namespace EventApi.Services.TagServices
             _tagRepository = tagRepository;
         }
 
-        public async Task<List<Tag>> GetTagsByIdsAsync(List<Guid> tagIds)
-        {
-            if (tagIds == null || !tagIds.Any())
-                return new List<Tag>();
-
-            return await _tagRepository.GetByIdsAsync(tagIds);
-        }
-
         public async Task<List<TagDto>> GetAllTagsAsync()
         {
             var tags = await _tagRepository.GetAllAsync();

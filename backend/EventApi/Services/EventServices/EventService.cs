@@ -1,8 +1,11 @@
 using EventApi.Dtos.EventDtos;
+using EventApi.Dtos.TagDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using EventApi.Repositories.AuthRepositories;
 using EventApi.Repositories.EventRepositories;
+using EventApi.Repositories.TagRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventApi.Services.EventServices
 {
@@ -10,21 +13,26 @@ namespace EventApi.Services.EventServices
     {
         private readonly IEventRepository _eventRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly ITagRepository _tagRepository;
 
-        public EventService(IEventRepository eventRepository, IAuthRepository authRepository)
+        public EventService(IEventRepository eventRepository, IAuthRepository authRepository, ITagRepository tagRepository)
         {
             _eventRepository = eventRepository;
             _authRepository = authRepository;
+            _tagRepository = tagRepository;
         }
 
-        public async Task<List<EventResponseDto>> GetPublicEventsAsync(Guid? userId = null)
+        public async Task<List<EventResponseDto>> GetPublicEventsAsync(Guid? userId = null, List<Guid>? tagIds = null)
         {
-            var events = await _eventRepository.GetPublicEventsAsync();
+            var query = _eventRepository.GetPublicEventsQuery();
+
+            if (tagIds != null && tagIds.Any())
+                query = query.Where(e => e.EventTags.Any(et => tagIds.Contains(et.TagId)));
 
             if (userId.HasValue)
-            {
-                events = events.Where(e => e.CreatorId != userId.Value).ToList();
-            }
+                query = query.Where(e => e.CreatorId != userId.Value);
+
+            var events = await query.ToListAsync();
 
             return events.Select(e => new EventResponseDto
             {
@@ -37,7 +45,12 @@ namespace EventApi.Services.EventServices
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
                 CreatorEmail = e.Creator.Email,
-                ParticipantCount = e.Participants?.Count ?? 0
+                ParticipantCount = e.Participants?.Count ?? 0,
+                Tags = e.EventTags.Select(et => new TagDto
+                {
+                    Id = et.Tag.Id,
+                    Name = et.Tag.Name
+                }).ToList()
             }).ToList();
         }
 
@@ -58,12 +71,21 @@ namespace EventApi.Services.EventServices
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
                 CreatorEmail = e.Creator.Email,
-                ParticipantCount = e.Participants.Count
+                ParticipantCount = e.Participants.Count,
+                Tags = e.EventTags.Select(et => new TagDto
+                {
+                    Id = et.Tag.Id,
+                    Name = et.Tag.Name
+                }).ToList()
             };
         }
 
         public async Task<EventResponseDto> CreateEventAsync(EventCreateDto dto, Guid userId)
         {
+            var existingTags = await _tagRepository.GetByIdsAsync(dto.TagIds);
+            if (existingTags.Count != dto.TagIds.Count)
+                throw new TagsNotFoundException("One or more selected tags do not exist.");
+
             var e = new Event
             {
                 Title = dto.Title,
@@ -73,7 +95,11 @@ namespace EventApi.Services.EventServices
                 Capacity = dto.Capacity,
                 Visibility = dto.Visibility,
                 CreatorId = userId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                EventTags = dto.TagIds.Select(tagId => new EventTag
+                {
+                    TagId = tagId
+                }).ToList()
             };
 
             await _eventRepository.AddAsync(e);
@@ -90,12 +116,24 @@ namespace EventApi.Services.EventServices
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
                 CreatorEmail = user!.Email,
-                ParticipantCount = 0
+                ParticipantCount = 0,
+                Tags = existingTags.Select(t => new TagDto
+                {
+                    Id = t.Id,
+                    Name = t.Name
+                }).ToList()
             };
         }
 
         public async Task<EventResponseDto> UpdateEventAsync(Guid id, EventUpdateDto dto, Guid userId)
         {
+            if (dto.TagIds != null)
+            {
+                var existingTags = await _tagRepository.GetByIdsAsync(dto.TagIds);
+                if (existingTags.Count != dto.TagIds.Count)
+                    throw new TagsNotFoundException("One or more selected tags do not exist.");
+            }
+
             var e = await _eventRepository.GetByIdAsync(id);
             if (e == null) throw new EventNotFoundException("Event not found");
             if (e.CreatorId != userId) throw new ForbiddenAccessException("Only creator can edit event");
@@ -108,8 +146,17 @@ namespace EventApi.Services.EventServices
             if (dto.Visibility.HasValue) e.Visibility = dto.Visibility.Value;
             e.UpdatedAt = DateTime.UtcNow;
 
+            if (dto.TagIds != null)
+            {
+                e.EventTags.Clear();
+                foreach (var tagId in dto.TagIds)
+                    e.EventTags.Add(new EventTag { TagId = tagId });
+            }
+
             await _eventRepository.UpdateAsync(e);
-            var user = await _authRepository.GetByIdAsync(userId);
+
+            var user = e.Creator;
+            var tags = e.EventTags.Select(et => et.Tag);
 
             return new EventResponseDto
             {
@@ -121,8 +168,13 @@ namespace EventApi.Services.EventServices
                 Capacity = e.Capacity,
                 Visibility = e.Visibility,
                 CreatorId = e.CreatorId,
-                CreatorEmail = user!.Email,
-                ParticipantCount = e.Participants?.Count ?? 0
+                CreatorEmail = user.Email,
+                ParticipantCount = e.Participants?.Count ?? 0,
+                Tags = tags.Select(t => new TagDto
+                {
+                    Id = t.Id,
+                    Name = t.Name
+                }).ToList()
             };
         }
 

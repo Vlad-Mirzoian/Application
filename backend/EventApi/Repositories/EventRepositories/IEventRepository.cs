@@ -5,7 +5,7 @@ namespace EventApi.Repositories.EventRepositories
 {
     public interface IEventRepository
     {
-        Task<List<Event>> GetPublicEventsAsync();
+        IQueryable<Event> GetPublicEventsQuery();
         Task<Event?> GetByIdAsync(Guid id);
         Task AddAsync(Event @event);
         Task UpdateAsync(Event @event);

@@ -35,6 +35,7 @@ namespace EventApi.Middlewares
                 AlreadyJoinedException => (HttpStatusCode.Conflict, ex.Message),
                 EventFullException => (HttpStatusCode.Conflict, ex.Message),
                 NotParticipantException => (HttpStatusCode.Forbidden, ex.Message),
+                TagsNotFoundException => (HttpStatusCode.NotFound, ex.Message),
                 _ => (HttpStatusCode.InternalServerError, "Internal server error")
             };
 
@@ -78,5 +79,9 @@ namespace EventApi.Middlewares
     public class NotParticipantException : Exception
     {
         public NotParticipantException(string message) : base(message) { }
+    }
+    public class TagsNotFoundException : Exception
+    {
+        public TagsNotFoundException(string message) : base(message) { }
     }
 }

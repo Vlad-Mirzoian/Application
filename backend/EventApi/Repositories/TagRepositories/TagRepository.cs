@@ -26,10 +26,5 @@ namespace EventApi.Repositories.TagRepositories
                 .OrderBy(t => t.Name)
                 .ToListAsync();
         }
-
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            return await _context.Tags.AnyAsync(t => t.Id == id);
-        }
     }
 }

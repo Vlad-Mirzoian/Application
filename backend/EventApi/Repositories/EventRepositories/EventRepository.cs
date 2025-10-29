@@ -1,5 +1,6 @@
 using EventApi.Data;
 using EventApi.Dtos.EventDtos;
+using EventApi.Dtos.TagDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +12,22 @@ namespace EventApi.Repositories.EventRepositories
         private readonly AppDbContext _context;
         public EventRepository(AppDbContext context) => _context = context;
 
-        public async Task<List<Event>> GetPublicEventsAsync() =>
-            await _context.Events
+        public IQueryable<Event> GetPublicEventsQuery()
+        {
+            return _context.Events
                 .Where(e => e.Visibility && e.StartDateTime >= DateTime.UtcNow)
                 .Include(e => e.Creator)
                 .Include(e => e.Participants)
-                .ToListAsync();
+                .Include(e => e.EventTags)
+                    .ThenInclude(et => et.Tag);
+        }
 
         public async Task<Event?> GetByIdAsync(Guid id) =>
             await _context.Events
                 .Include(e => e.Creator)
                 .Include(e => e.Participants)
+                .Include(e => e.EventTags)
+                    .ThenInclude(et => et.Tag)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
         public async Task AddAsync(Event @event)
@@ -105,7 +111,10 @@ namespace EventApi.Repositories.EventRepositories
                     Id = e.Id,
                     Title = e.Title,
                     Start = e.StartDateTime,
-                    IsCreator = e.CreatorId == userId
+                    IsCreator = e.CreatorId == userId,
+                    FirstTag = e.EventTags
+                        .Select(et => new TagDto { Id = et.Tag.Id, Name = et.Tag.Name })
+                        .First()
                 })
                 .ToListAsync();
         }
