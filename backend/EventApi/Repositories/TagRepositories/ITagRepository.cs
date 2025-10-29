@@ -6,5 +6,6 @@ namespace EventApi.Repositories.TagRepositories
     {
         Task<List<Tag>> GetByIdsAsync(List<Guid> ids);
         Task<List<Tag>> GetAllAsync();
+        Task<List<Guid>> GetTagsByNamesAsync(List<string> names);
     }
 }

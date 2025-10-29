@@ -1,6 +1,4 @@
 using EventApi.Data;
-using EventApi.Dtos.EventDtos;
-using EventApi.Dtos.TagDtos;
 using EventApi.Middlewares;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -102,20 +100,15 @@ namespace EventApi.Repositories.EventRepositories
             }
         }
 
-        public async Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId)
+        public async Task<List<Event>> GetUserEventsAsync(Guid userId)
         {
             return await _context.Events
                 .Where(e => e.CreatorId == userId || e.Participants.Any(p => p.UserId == userId))
-                .Select(e => new CalendarEventDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Start = e.StartDateTime,
-                    IsCreator = e.CreatorId == userId,
-                    FirstTag = e.EventTags
-                        .Select(et => new TagDto { Id = et.Tag.Id, Name = et.Tag.Name })
-                        .First()
-                })
+                .Include(e => e.Creator)
+                .Include(e => e.Participants)
+                    .ThenInclude(p => p.User)
+                .Include(e => e.EventTags).ThenInclude(et => et.Tag)
+                .OrderBy(e => e.StartDateTime)
                 .ToListAsync();
         }
     }

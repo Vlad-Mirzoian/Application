@@ -216,7 +216,18 @@ namespace EventApi.Services.EventServices
 
         public async Task<List<CalendarEventDto>> GetUserEventsAsync(Guid userId)
         {
-            return await _eventRepository.GetUserEventsAsync(userId);
+            var events = await _eventRepository.GetUserEventsAsync(userId);
+
+            return events.Select(e => new CalendarEventDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Start = e.StartDateTime,
+                IsCreator = e.CreatorId == userId,
+                FirstTag = e.EventTags
+                    .Select(et => new TagDto { Id = et.Tag.Id, Name = et.Tag.Name })
+                    .FirstOrDefault()
+            }).ToList();
         }
     }
 }

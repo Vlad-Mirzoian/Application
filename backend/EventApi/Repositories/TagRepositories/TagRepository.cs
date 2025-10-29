@@ -26,5 +26,13 @@ namespace EventApi.Repositories.TagRepositories
                 .OrderBy(t => t.Name)
                 .ToListAsync();
         }
+        
+        public async Task<List<Guid>> GetTagsByNamesAsync(List<string> names)
+        {
+            return await _context.Tags
+                .Where(t => names.Contains(t.Name.ToLower()))
+                .Select(t => t.Id)
+                .ToListAsync();
+        }
     }
 }
