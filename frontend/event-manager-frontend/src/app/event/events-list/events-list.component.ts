@@ -1,12 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navigation, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, BehaviorSubject, of, Subject, concat, timer } from 'rxjs';
+import { MatSelectModule } from '@angular/material/select';
+import {
+  Observable,
+  BehaviorSubject,
+  of,
+  Subject,
+  concat,
+  timer,
+  combineLatest,
+} from 'rxjs';
 import { switchMap, catchError, tap, map, startWith } from 'rxjs/operators';
 import { EventService, EventDto, CalendarEventDto } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
+import { Tag } from '../../shared/models/tag.model';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { TagService } from '../../shared/services/tag.service';
 
 interface EventAction {
   type: 'join' | 'leave';
@@ -21,7 +33,13 @@ interface EventActionMessage {
 @Component({
   selector: 'app-events-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './events-list.component.html',
   styleUrls: ['./events-list.component.scss'],
 })
@@ -37,10 +55,17 @@ export class EventsListComponent implements OnInit {
   private refreshEvents$ = new BehaviorSubject<void>(undefined);
   private actionTrigger$ = new Subject<EventAction>();
 
+  tags$!: Observable<Tag[]>;
+  selectedTags = new FormControl<string[]>([]);
+  filteredEvents$!: Observable<EventDto[]>;
+  dropdownOpen = false;
+
   constructor(
     private eventService: EventService,
     private authService: AuthService,
-    private router: Router
+    private tagService: TagService,
+    private router: Router,
+    private elementRef: ElementRef
   ) {
     this.isAuthenticated = this.authService.isAuthenticated();
     const nav = this.router.getCurrentNavigation();
@@ -51,14 +76,21 @@ export class EventsListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.events$ = this.refreshEvents$.pipe(
-      switchMap(() => this.eventService.getPublicEvents())
+    this.tags$ = this.tagService.getAll();
+
+    this.events$ = this.selectedTags.valueChanges.pipe(
+      startWith([] as string[]),
+      switchMap((tagIds) =>
+        this.eventService.getPublicEvents(tagIds?.length ? tagIds : undefined)
+      )
     );
+
     if (this.isAuthenticated) {
       this.userEvents$ = this.refreshUserEvents$.pipe(
         switchMap(() => this.eventService.getUserEvents())
       );
     }
+
     this.submitResult$ = this.actionTrigger$.pipe(
       switchMap(({ type, id }) => {
         const action$ =
@@ -103,5 +135,30 @@ export class EventsListComponent implements OnInit {
 
   isUserParticipant(eventId: string, userEvents: CalendarEventDto[]): boolean {
     return userEvents.some((e) => e.id === eventId && !e.isCreator);
+  }
+
+  get selectedTagsCount(): number {
+    return this.selectedTags.value?.length ?? 0;
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  toggleTag(tagId: string) {
+    const current = this.selectedTags.value || [];
+    const updated = current.includes(tagId)
+      ? current.filter((id) => id !== tagId)
+      : [...current, tagId];
+    this.selectedTags.setValue(updated);
+  }
+
+  @ViewChild('dropdownRef') dropdownRef!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.dropdownRef.nativeElement.contains(event.target)) {
+      this.dropdownOpen = false;
+    }
   }
 }

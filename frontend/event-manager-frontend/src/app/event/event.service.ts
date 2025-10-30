@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { Tag } from '../shared/models/tag.model';
 
 export interface EventDto {
   id: string;
@@ -11,6 +12,7 @@ export interface EventDto {
   location: string;
   capacity?: number;
   visibility: boolean;
+  tags: Tag[];
   creatorId: string;
   creatorEmail: string;
   participantCount: number;
@@ -30,6 +32,7 @@ export interface EventCreateDto {
   location: string;
   capacity?: number;
   visibility: boolean;
+  tagIds: string[]
 }
 
 export interface EventUpdateDto {
@@ -39,6 +42,7 @@ export interface EventUpdateDto {
   location?: string;
   capacity?: number;
   visibility?: boolean;
+  tagIds?: string[]
 }
 
 @Injectable({
@@ -49,8 +53,14 @@ export class EventService {
 
   constructor(private http: HttpClient) {}
 
-  getPublicEvents(): Observable<EventDto[]> {
-    return this.http.get<EventDto[]>(`${this.apiUrl}/events`);
+  getPublicEvents(tagIds?: string[]): Observable<EventDto[]> {
+    const params: any = {};
+    if (tagIds && tagIds.length > 0) {
+      params.tags = tagIds.join(',');
+    }
+    return this.http
+      .get<EventDto[]>(`${this.apiUrl}/events`, { params })
+      .pipe(map((events) => events.map((e) => ({ ...e, tags: e.tags ?? [] }))));
   }
 
   getEventById(id: string): Observable<EventDto> {

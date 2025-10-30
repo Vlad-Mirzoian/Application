@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +19,8 @@ import {
   EventCreateDto,
   EventUpdateDto,
 } from '../event.service';
+import { TagService } from '../../shared/services/tag.service';
+import { Tag } from '../../shared/models/tag.model';
 
 interface SubmitResult {
   success: boolean;
@@ -39,16 +43,20 @@ interface SubmitResult {
 export class FormComponent implements OnInit {
   eventForm: FormGroup;
   event$!: Observable<EventDto | null>;
+  tags$!: Observable<Tag[]>;
   isLoading$ = new BehaviorSubject<boolean>(false);
   submitResult$ = new BehaviorSubject<SubmitResult | null>(null);
 
+  dropdownOpen = false;
   private submit$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private eventService: EventService,
+    private tagService: TagService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private elementRef: ElementRef
   ) {
     this.eventForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -58,6 +66,7 @@ export class FormComponent implements OnInit {
       location: ['', [Validators.required, Validators.maxLength(200)]],
       capacity: [null, [Validators.min(1)]],
       visibility: [true, Validators.required],
+      tagIds: [[], [Validators.required, this.maxTagsValidator(5)]],
     });
 
     this.submitResult$ = this.submit$.pipe(
@@ -86,6 +95,7 @@ export class FormComponent implements OnInit {
           location: this.eventForm.value.location,
           capacity: this.eventForm.value.capacity || undefined,
           visibility: this.eventForm.value.visibility,
+          tagIds: this.eventForm.value.tagIds,
         };
 
         return this.event$.pipe(
@@ -113,7 +123,16 @@ export class FormComponent implements OnInit {
     ) as BehaviorSubject<SubmitResult | null>;
   }
 
+  private maxTagsValidator(max: number) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const arr = control.value || [];
+      return arr.length > max ? { maxTags: true } : null;
+    };
+  }
+
   ngOnInit() {
+    this.tags$ = this.tagService.getAll();
+
     this.event$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const id = params.get('id');
@@ -142,11 +161,32 @@ export class FormComponent implements OnInit {
       location: event.location,
       capacity: event.capacity,
       visibility: event.visibility,
+      tagIds: event.tags?.map((t) => t.id),
     });
   }
 
+  toggleTagDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  toggleFormTag(tagId: string) {
+    const current = this.eventForm.value.tagIds || [];
+    const updated = current.includes(tagId)
+      ? current.filter((id: string) => id !== tagId)
+      : [...current, tagId];
+    this.eventForm.patchValue({ tagIds: updated });
+  }
+
+  @ViewChild('dropdownRef') dropdownRef!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.dropdownRef.nativeElement.contains(event.target)) {
+      this.dropdownOpen = false;
+    }
+  }
+
   onSubmit() {
-    console.log('On submit:', this.eventForm.status, this.eventForm.value);
     this.submit$.next();
   }
 
