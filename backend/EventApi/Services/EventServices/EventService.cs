@@ -223,10 +223,7 @@ namespace EventApi.Services.EventServices
                 Id = e.Id,
                 Title = e.Title,
                 Start = e.StartDateTime,
-                IsCreator = e.CreatorId == userId,
-                FirstTag = e.EventTags
-                    .Select(et => new TagDto { Id = et.Tag.Id, Name = et.Tag.Name })
-                    .FirstOrDefault()
+                IsCreator = e.CreatorId == userId
             }).ToList();
         }
     }

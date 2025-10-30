@@ -33,30 +33,17 @@ namespace EventApi.Services.AiServices
                 ParticipantNames = e.Participants.Select(p => p.User.Email).ToList()
             }).ToList();
 
-            var allTags = await _tagRepository.GetAllAsync();
-
-            var matchedTags = allTags
-                .Where(t => question.Contains(t.Name, StringComparison.OrdinalIgnoreCase))
-                .Select(t => t.Id)
-                .ToList();
-
-            if (matchedTags.Any())
+            var publicEvents = await _eventRepository.GetPublicEventsQuery()
+                .OrderBy(e => e.StartDateTime)
+                .ToListAsync();
+            context.PublicEvents = publicEvents.Select(e => new PublicEventDto
             {
-                var publicEvents = await _eventRepository.GetPublicEventsQuery()
-                    .Where(e => e.EventTags.Any(et => matchedTags.Contains(et.TagId)))
-                    .OrderBy(e => e.StartDateTime)
-                    .ToListAsync();
-
-                context.PublicEvents = publicEvents.Select(e => new PublicEventDto
-                {
-                    Title = e.Title,
-                    Start = e.StartDateTime,
-                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
-                    Location = e.Location,
-                    ParticipantNames = e.Participants.Select(p => p.User.Email).ToList() // <-- сюда участников
-                }).ToList();
-            }
-
+                Title = e.Title,
+                Start = e.StartDateTime,
+                Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
+                Location = e.Location,
+                ParticipantNames = e.Participants.Select(p => p.User.Email).ToList()
+            }).ToList();
             return context;
         }
     }

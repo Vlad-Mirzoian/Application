@@ -32,7 +32,7 @@ export interface EventCreateDto {
   location: string;
   capacity?: number;
   visibility: boolean;
-  tagIds: string[]
+  tagIds: string[];
 }
 
 export interface EventUpdateDto {
@@ -42,7 +42,7 @@ export interface EventUpdateDto {
   location?: string;
   capacity?: number;
   visibility?: boolean;
-  tagIds?: string[]
+  tagIds?: string[];
 }
 
 @Injectable({

@@ -1,1 +1,19 @@
-<app-navbar *ngIf="showNavbar"></app-navbar> <router-outlet></router-outlet>
+<div class="relative h-screen">
+  <app-navbar *ngIf="showNavbar" class="z-20"></app-navbar>
+
+  <div class="flex h-full">
+    <app-ai-sidebar
+      *ngIf="showAiSidebar"
+      class="absolute top-16 left-0 h-full z-60"
+    ></app-ai-sidebar>
+
+    <div
+      class="flex-1 transition-margin duration-300"
+      [style.marginLeft.rem]="
+        showAiSidebar && (isSidebarOpen$ | async) ? 24 : 0
+      "
+    >
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

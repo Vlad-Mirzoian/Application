@@ -26,10 +26,19 @@ namespace EventApi.Services.AiServices
 
         private async Task<string> CallGroqMultiStepAsync(string question, AiContextDto context)
         {
+            var systemPrompt = @"
+You are a helpful event assistant. Follow these rules strictly:
+
+1. **NEVER use tables or markdown tables** in your response.
+2. Use **rich hierarchical lists**.
+
+First, analyze the provided data. Then, answer the user's question using the format above.
+".Trim();
+
             var messages = new List<object>
-        {
-            new { role = "system", content = "You are a helpful event assistant. First, analyze the data. Then, answer the question." }
-        };
+            {
+            new { role = "system", content = systemPrompt }
+            };
 
             var contextPrompt = BuildContextPrompt(context);
             messages.Add(new { role = "user", content = contextPrompt });
