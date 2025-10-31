@@ -1,9 +1,14 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import {
   Observable,
   BehaviorSubject,
@@ -11,9 +16,16 @@ import {
   Subject,
   concat,
   timer,
-  combineLatest,
+  merge,
 } from 'rxjs';
-import { switchMap, catchError, tap, map, startWith } from 'rxjs/operators';
+import {
+  switchMap,
+  catchError,
+  tap,
+  map,
+  startWith,
+  shareReplay,
+} from 'rxjs/operators';
 import { EventService, EventDto, CalendarEventDto } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
 import { Tag } from '../../shared/models/tag.model';
@@ -64,8 +76,7 @@ export class EventsListComponent implements OnInit {
     private eventService: EventService,
     private authService: AuthService,
     private tagService: TagService,
-    private router: Router,
-    private elementRef: ElementRef
+    private router: Router
   ) {
     this.isAuthenticated = this.authService.isAuthenticated();
     const nav = this.router.getCurrentNavigation();
@@ -78,16 +89,26 @@ export class EventsListComponent implements OnInit {
   ngOnInit() {
     this.tags$ = this.tagService.getAll();
 
-    this.events$ = this.selectedTags.valueChanges.pipe(
-      startWith([] as string[]),
-      switchMap((tagIds) =>
-        this.eventService.getPublicEvents(tagIds?.length ? tagIds : undefined)
-      )
+    this.events$ = merge(
+      this.selectedTags.valueChanges.pipe(
+        startWith(this.selectedTags.value || [])
+      ),
+      this.refreshEvents$
+    ).pipe(
+      switchMap(() => {
+        const tagIds = this.selectedTags.value;
+        return this.eventService.getPublicEvents(
+          tagIds?.length ? tagIds : undefined
+        );
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
 
     if (this.isAuthenticated) {
       this.userEvents$ = this.refreshUserEvents$.pipe(
-        switchMap(() => this.eventService.getUserEvents())
+        startWith(undefined),
+        switchMap(() => this.eventService.getUserEvents()),
+        shareReplay(1)
       );
     }
 

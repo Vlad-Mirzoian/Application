@@ -36,9 +36,6 @@ export class AppComponent {
         const isLoggedIn = this.authService.isAuthenticated();
         this.showNavbar = !isAuthPage;
         this.showAiSidebar = !isAuthPage && isLoggedIn;
-        if (!this.showAiSidebar) {
-          this.store.dispatch(toggleSidebar());
-        }
       });
   }
 

@@ -10,6 +10,8 @@ import {
   map,
   merge,
   Observable,
+  share,
+  filter,
 } from 'rxjs';
 import { marked } from 'marked';
 import { AiService } from '../shared/services/ai.service';
@@ -42,16 +44,34 @@ export class AiSidebarComponent {
 
   private sendTrigger$ = new Subject<string>();
 
-  private response$ = this.sendTrigger$.pipe(
+  private askStream$ = this.sendTrigger$.pipe(
     switchMap((question) =>
       this.aiService.ask(question).pipe(
-        catchError(() => of({ response: 'Sorry, something went wrong.' })),
         map((response) => ({
-          role: 'assistant' as const,
-          content: response.response,
-        }))
+          type: 'success' as const,
+          response: response.response,
+        })),
+        catchError(() =>
+          of({
+            type: 'error' as const,
+            response: 'Sorry, something went wrong.',
+          })
+        ),
+        startWith({ type: 'loading' as const })
       )
-    )
+    ),
+    share()
+  );
+
+  private response$ = this.askStream$.pipe(
+    filter(
+      (state): state is { type: 'success'; response: string } =>
+        state.type === 'success'
+    ),
+    map((state) => ({
+      role: 'assistant' as const,
+      content: state.response,
+    }))
   );
 
   private userMessages$ = this.sendTrigger$.pipe(
@@ -71,14 +91,8 @@ export class AiSidebarComponent {
     startWith([] as Message[])
   );
 
-  isLoading$ = this.sendTrigger$.pipe(
-    switchMap((question) =>
-      this.aiService.ask(question).pipe(
-        map(() => false),
-        startWith(true),
-        catchError(() => of(false))
-      )
-    ),
+  isLoading$ = this.askStream$.pipe(
+    map((state) => state.type === 'loading'),
     startWith(false)
   );
 
