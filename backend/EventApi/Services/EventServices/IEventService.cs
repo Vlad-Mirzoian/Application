@@ -1,10 +1,10 @@
 using EventApi.Dtos.EventDtos;
 
-namespace EventApi.Services
+namespace EventApi.Services.EventServices
 {
     public interface IEventService
     {
-        Task<List<EventResponseDto>> GetPublicEventsAsync(Guid? userId = null);
+        Task<List<EventResponseDto>> GetPublicEventsAsync(Guid? userId = null, List<Guid>? tagIds = null);
         Task<EventResponseDto> GetEventByIdAsync(Guid id, Guid? userId);
         Task<EventResponseDto> CreateEventAsync(EventCreateDto dto, Guid userId);
         Task<EventResponseDto> UpdateEventAsync(Guid id, EventUpdateDto dto, Guid userId);

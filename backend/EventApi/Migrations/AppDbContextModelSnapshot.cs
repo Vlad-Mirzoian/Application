@@ -63,6 +63,9 @@ namespace EventApi.Migrations
 
                     b.HasIndex("StartDateTime");
 
+                    b.HasIndex("Title")
+                        .IsUnique();
+
                     b.ToTable("Events");
 
                     b.HasData(
@@ -73,7 +76,7 @@ namespace EventApi.Migrations
                             CreatedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatorId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Location = "City Center",
-                            StartDateTime = new DateTime(2025, 10, 20, 12, 0, 0, 0, DateTimeKind.Utc),
+                            StartDateTime = new DateTime(2025, 11, 20, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Public Event 1",
                             Visibility = true
                         },
@@ -84,7 +87,7 @@ namespace EventApi.Migrations
                             CreatedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatorId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Location = "Park",
-                            StartDateTime = new DateTime(2025, 10, 21, 12, 0, 0, 0, DateTimeKind.Utc),
+                            StartDateTime = new DateTime(2025, 11, 21, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Public Event 2",
                             Visibility = true
                         },
@@ -95,9 +98,41 @@ namespace EventApi.Migrations
                             CreatedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatorId = new Guid("22222222-2222-2222-2222-222222222222"),
                             Location = "Home",
-                            StartDateTime = new DateTime(2025, 10, 22, 12, 0, 0, 0, DateTimeKind.Utc),
+                            StartDateTime = new DateTime(2025, 11, 22, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Private Event",
                             Visibility = false
+                        });
+                });
+
+            modelBuilder.Entity("EventApi.Models.EventTag", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EventId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("EventTags");
+
+                    b.HasData(
+                        new
+                        {
+                            EventId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            TagId = new Guid("66666666-6666-6666-6666-666666666666")
+                        },
+                        new
+                        {
+                            EventId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            TagId = new Guid("88888888-8888-8888-8888-888888888888")
+                        },
+                        new
+                        {
+                            EventId = new Guid("44444444-4444-4444-4444-444444444444"),
+                            TagId = new Guid("77777777-7777-7777-7777-777777777777")
                         });
                 });
 
@@ -124,6 +159,47 @@ namespace EventApi.Migrations
                             EventId = new Guid("33333333-3333-3333-3333-333333333333"),
                             UserId = new Guid("22222222-2222-2222-2222-222222222222"),
                             JoinedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("EventApi.Models.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("LOWER(\"Name\") IS NOT NULL");
+
+                    b.ToTable("Tags");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
+                            Name = "Technology"
+                        },
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
+                            Name = "Art"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
+                            Name = "Business"
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-9999-9999-9999-999999999999"),
+                            Name = "Music"
                         });
                 });
 
@@ -182,6 +258,25 @@ namespace EventApi.Migrations
                     b.Navigation("Creator");
                 });
 
+            modelBuilder.Entity("EventApi.Models.EventTag", b =>
+                {
+                    b.HasOne("EventApi.Models.Event", "Event")
+                        .WithMany("EventTags")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EventApi.Models.Tag", "Tag")
+                        .WithMany("EventTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("EventApi.Models.Participant", b =>
                 {
                     b.HasOne("EventApi.Models.Event", "Event")
@@ -203,7 +298,14 @@ namespace EventApi.Migrations
 
             modelBuilder.Entity("EventApi.Models.Event", b =>
                 {
+                    b.Navigation("EventTags");
+
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("EventApi.Models.Tag", b =>
+                {
+                    b.Navigation("EventTags");
                 });
 
             modelBuilder.Entity("EventApi.Models.User", b =>

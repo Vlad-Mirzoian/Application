@@ -1,3 +1,5 @@
+using EventApi.Dtos.TagDtos;
+
 namespace EventApi.Dtos.EventDtos
 {
     public class CalendarEventDto

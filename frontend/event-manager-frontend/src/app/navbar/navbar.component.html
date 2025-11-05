@@ -1,7 +1,7 @@
 <nav
-  class="bg-white shadow-sm h-16 fixed w-full top-0 z-50 border-b border-gray-200"
+  class="bg-white shadow-sm h-16 fixed w-full top-0 border-b border-gray-200 z-50"
 >
-  <div class="container mx-auto px-4 h-16 flex justify-end items-center">
+  <div class="container mx-auto px-6 h-16 flex justify-end items-center" #dropdownRef>
     <button
       class="md:hidden p-2 text-gray-700 hover:text-purple-600 transition-colors"
       (click)="toggleMenu()"
@@ -38,6 +38,28 @@
         'md:flex md:flex-row': true
       }"
     >
+      <button
+        (click)="toggleSidebar()"
+        *ngIf="isAuthenticated$ | async"
+        class="flex items-center text-gray-700 hover:text-purple-600 font-medium transition-colors py-3 px-4 md:px-0"
+        aria-label="Toggle AI Sidebar"
+      >
+        <!-- Робот иконка -->
+        <svg
+          class="w-5 h-5 mr-1.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 2a2 2 0 012 2v2a2 2 0 11-4 0V4a2 2 0 012-2zm6 8v6a6 6 0 01-12 0v-6h12zM9 14h6"
+          />
+        </svg>
+        Assistant
+      </button>
       <a
         routerLink="/events"
         routerLinkActive="text-purple-600 font-semibold"
@@ -86,7 +108,7 @@
       <a
         *ngIf="isAuthenticated$ | async"
         routerLink="/events/create"
-        class="flex items-center text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg px-5 py-2 mx-4 md:mx-0 my-2 md:my-0 transition-all duration-200 shadow-sm hover:shadow"
+        class="flex items-center text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg px-2 py-2 mx-2 md:mx-0 my-2 md:my-0 transition-all duration-200 shadow-sm hover:shadow"
         (click)="closeMenu()"
       >
         <svg
@@ -102,7 +124,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Create
+        Create Event
       </a>
 
       <div

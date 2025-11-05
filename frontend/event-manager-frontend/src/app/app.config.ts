@@ -7,8 +7,7 @@ import {
 } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
-import { authInterceptor } from './shared/auth.interceptor';
-import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
+import { authInterceptor } from './auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [

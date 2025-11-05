@@ -2,7 +2,7 @@ using EventApi.Data;
 using EventApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventApi.Repositories
+namespace EventApi.Repositories.AuthRepositories
 {
     public class AuthRepository : IAuthRepository
     {

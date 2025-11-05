@@ -1,5 +1,5 @@
 using EventApi.Dtos.EventDtos;
-using EventApi.Services;
+using EventApi.Services.EventServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -18,12 +18,24 @@ namespace EventApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<EventResponseDto>>> GetPublicEvents()
+        public async Task<ActionResult<List<EventResponseDto>>> GetPublicEvents(
+            [FromQuery] GetPublicEventsQueryDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var events = await _eventService.GetPublicEventsAsync(
-                userIdClaim != null ? Guid.Parse(userIdClaim) : null
-            );
+            var userId = userIdClaim != null && Guid.TryParse(userIdClaim, out var parsedId)
+                ? parsedId
+                : (Guid?)null;
+
+            var tagIds = new List<Guid>();
+            if (!string.IsNullOrEmpty(dto.Tags))
+            {
+                tagIds = dto.Tags
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => Guid.Parse(t))
+                    .ToList();
+            }
+
+            var events = await _eventService.GetPublicEventsAsync(userId, tagIds);
             return Ok(events);
         }
 
@@ -40,7 +52,8 @@ namespace EventApi.Controllers
         [HttpPost]
         public async Task<ActionResult<EventResponseDto>> CreateEvent([FromBody] EventCreateDto dto)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = Guid.Parse(userIdClaim!);
             var eventDto = await _eventService.CreateEventAsync(dto, userId);
             return CreatedAtAction(nameof(GetEventById), new { id = eventDto.Id }, eventDto);
         }

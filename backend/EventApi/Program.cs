@@ -1,8 +1,12 @@
 using DotNetEnv;
 using EventApi.Data;
-using EventApi.Middlewares;
-using EventApi.Repositories;
-using EventApi.Services;
+using EventApi.Repositories.AuthRepositories;
+using EventApi.Repositories.EventRepositories;
+using EventApi.Repositories.TagRepositories;
+using EventApi.Services.AiServices;
+using EventApi.Services.AuthServices;
+using EventApi.Services.EventServices;
+using EventApi.Services.TagServices;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +34,23 @@ builder.Services.AddCors(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+var groqApiKey = Environment.GetEnvironmentVariable("GROQ_API_KEY");
+if (string.IsNullOrEmpty(groqApiKey))
+{
+    throw new InvalidOperationException("GROQ_API_KEY is not set in environment variables.");
+}
+
+builder.Services.AddHttpClient("GroqClient", client =>
+{
+    client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", groqApiKey);
+    client.DefaultRequestHeaders.Accept.Add(
+        new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -66,6 +87,10 @@ builder.Services.AddSwaggerGen(c =>
 
 var connectionStringTemplate = builder.Configuration.GetConnectionString("Default");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASS");
+if (string.IsNullOrEmpty(dbPassword))
+{
+    throw new InvalidOperationException("DB_PASS is not set in environment variables.");
+}
 var connectionString = connectionStringTemplate?.Replace("${DB_PASS}", dbPassword);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -94,6 +119,10 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<IAiDataProvider, AiDataProvider>();
+builder.Services.AddScoped<IAiService, AiService>();
 
 var app = builder.Build();
 
@@ -103,7 +132,7 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AngularApp");
 app.UseAuthentication();

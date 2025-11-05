@@ -29,6 +29,14 @@ namespace EventApi.Validators.EventValidators
                 .GreaterThan(0)
                 .When(x => x.Capacity.HasValue)
                 .WithMessage("Capacity must be greater than zero if specified");
+
+            RuleFor(x => x.TagIds)
+                .Must(tags => tags == null || tags.Count > 0)
+                .WithMessage("If tags are provided, at least one is required.")
+                .Must(tags => tags == null || tags.Count <= 5)
+                .WithMessage("Maximum 5 tags allowed.")
+                .Must(tags => tags == null || tags.Distinct().Count() == tags.Count)
+                .WithMessage("Duplicate tags are not allowed.");
         }
     }
 }

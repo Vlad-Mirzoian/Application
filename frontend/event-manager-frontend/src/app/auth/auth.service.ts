@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { SafeJwtHelperService } from '../shared/safe-jwt-helper.service';
+import { SafeJwtHelperService } from '../shared/services/safe-jwt-helper.service';
 
 export interface RegisterResponse {
   message: string;

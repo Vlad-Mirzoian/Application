@@ -7,9 +7,11 @@
 This application allows users to:
 
 - Register and log in.
-- Browse public events.
+- Browse public events with tag filtering
 - Create and edit their own events.
+- Calendar view for viewing their own events
 - Join or leave events.
+- AI Assistant — ask about events
 - View personal events in a calendar interface.
 
 The project is containerized with Docker for easy setup and deployment, but also supports local development without Docker.
@@ -24,17 +26,18 @@ The project is containerized with Docker for easy setup and deployment, but also
 
 ## Requirements
 
-Before starting, ensure you have the following installed:
+Before starting, ensure you have the following installed and configured:
 
-| Tool        | Version | Download Link                                                            | Notes                                           |
-| ----------- | ------- | ------------------------------------------------------------------------ | ----------------------------------------------- |
-| Git         | Latest  | [git-scm.com](https://git-scm.com)                                       | Required for cloning the repository             |
-| Docker      | Latest  | [docker.com](https://www.docker.com/get-started)                         | Includes Docker Compose for containerized setup |
-| Node.js     | 22.x    | [nodejs.org](https://nodejs.org)                                         | Required for local frontend development         |
-| .NET SDK    | 9.0     | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/9.0) | Required for local backend development          |
-| npm         | 10.9.2+ | `npm install -g npm@10.9.2`                                              | Recommended for dependency management           |
-| Angular CLI | 18.2.21  | `npm install -g @angular/cli@18.2.21`                                     | Required for local frontend development         |
-| PostgreSQL  | 17      | [postgresql.org](https://www.postgresql.org/download/)                   | Required for local database setup               |
+| Tool         | Version | Download Link                                                            | Notes                                              |
+| ------------ | ------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
+| Git          | Latest  | [git-scm.com](https://git-scm.com)                                       | Required for cloning the repository                |
+| Docker       | Latest  | [docker.com](https://www.docker.com/get-started)                         | Includes Docker Compose for containerized setup    |
+| Node.js      | 22.x    | [nodejs.org](https://nodejs.org)                                         | Required for local frontend development            |
+| .NET SDK     | 9.0     | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/9.0) | Required for local backend development             |
+| npm          | 10.9.2+ | `npm install -g npm@10.9.2`                                              | Recommended for dependency management              |
+| Angular CLI  | 18.2.21 | `npm install -g @angular/cli@18.2.21`                                    | Required for local frontend development            |
+| PostgreSQL   | 17      | [postgresql.org](https://www.postgresql.org/download/)                   | Required for local database setup                  |
+| Groq API Key | —       | [console.groq.com](https://console.groq.com)                             | Required for the built-in AI Assistant to function |
 
 ## Installation and Startup (Docker - Recommended)
 
@@ -67,6 +70,7 @@ cd Application
 DB_PASS=your_secure_password
 JWT_KEY=your-secure-key-32-chars-long-minimum
 API_URL=http://localhost:5250
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ### 3. Start the project using Docker
@@ -79,7 +83,6 @@ docker-compose up --build -d
 
 - **Frontend:** http://localhost:4200
 - **Backend:** http://localhost:5250
-- **Swagger UI:** http://localhost:5250/swagger
 - **PostgreSQL:** localhost:5433
 
   - Username: postgres
@@ -129,6 +132,7 @@ cd Application
   DB_PASS=your_secure_password
   JWT_KEY=your-secure-key-32-chars-long-minimum
   API_URL=http://localhost:5250
+  GROQ_API_KEY=your_groq_api_key
 ```
 
 #### 3. Set up PostgreSQL:
@@ -143,10 +147,8 @@ psql -U postgres -c "CREATE DATABASE eventdb;"
 - Update the backend connection string in backend/EventApi/appsettings.json:
 
 ```bash
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=eventdb;Username=postgres;Password=your_secure_password"
-  }
+"ConnectionStrings": {
+  "Default": "Host=localhost;Port=5432;Database=eventdb;Username=postgres;Password=your_secure_password"
 }
 ```
 
@@ -204,15 +206,30 @@ The seeded database contains test users and events.
 
 **Participation:** `user2` is a participant in **Event 1**
 
+### Tags
+
+| Name       |
+| ---------- |
+| Technology |
+| Art        |
+| Business   |
+| Music      |
+
+**Relations:**
+
+- Public Event 1 → Technology, Business
+- Public Event 2 → Art
+
 ## API Endpoints
 
-API documentation is available via **Swagger**:  
+API documentation is available via **Swagger** (only in Local Development):  
 👉 [http://localhost:5250/swagger](http://localhost:5250/swagger)
 
 ### Main Endpoints
 
 | Method | Endpoint                 | Description                  | Auth |
 | ------ | ------------------------ | ---------------------------- | ---- |
+| POST   | `/api/ai/assist`         | Ask AI assistant question    | ✅   |
 | POST   | `/api/auth/register`     | Register a new user          | ❌   |
 | POST   | `/api/auth/login`        | User login                   | ❌   |
 | GET    | `/api/events`            | Get public events            | ❌   |
@@ -222,6 +239,7 @@ API documentation is available via **Swagger**:
 | DELETE | `/api/events/{id}`       | Delete an event              | ✅   |
 | POST   | `/api/events/{id}/join`  | Join an event                | ✅   |
 | POST   | `/api/events/{id}/leave` | Leave an event               | ✅   |
+| GET    | `/api/tags`              | Get all tags                 | ❌   |
 | GET    | `/api/users/me/events`   | Get user’s events (calendar) | ✅   |
 
 ## Deployment
